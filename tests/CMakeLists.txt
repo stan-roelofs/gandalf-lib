@@ -19,11 +19,11 @@ set(SOURCES
   src/resource_helper.cpp
 )
 
-add_executable(gb_lib_test ${SOURCES})
-target_link_libraries(gb_lib_test gb_lib gtest_main)
+add_executable(libgb_test ${SOURCES})
+target_link_libraries(libgb_test libgb gtest_main)
 
 string(CONCAT RESOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/resources)
-target_compile_definitions(gb_lib_test PRIVATE RESOURCE_PATH=\"${RESOURCE_PATH}\")
+target_compile_definitions(libgb_test PRIVATE RESOURCE_PATH=\"${RESOURCE_PATH}\")
 
 include(GoogleTest)
-gtest_discover_tests(gb_lib_test)
+gtest_discover_tests(libgb_test)
