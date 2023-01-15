@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 17)
  
 project(libgb)
 
-enable_testing() 
+option(BUILD_TESTS "Build tests" OFF)
 
 set(HEADERS
     include/gandalf/apu.h
@@ -86,4 +86,8 @@ endif()
 
 target_include_directories(libgb PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(tests)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(external/googletest)
+  add_subdirectory(tests)
+endif()
