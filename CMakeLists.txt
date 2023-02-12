@@ -89,6 +89,9 @@ target_include_directories(gandalf-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includ
 
 if(GANDALF_BUILD_TESTS)
   enable_testing()
+  set(INSTALL_GTEST, OFF)
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   add_subdirectory(external/googletest)
   add_subdirectory(tests)
 endif()
