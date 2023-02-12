@@ -1,5 +1,5 @@
 # sdl
-This project demonstrates how to use the library to create a minimal emulator in just a few hundred lines of code. It uses SDL to create a window and handle rendering and audio.
+This project demonstrates how to use the library to create a fully functional emulator in just a few hundred lines of code. It uses SDL to create a window and handle rendering and audio.
 
 ## Usage
 ```
