@@ -11,11 +11,11 @@ set(SOURCES
   src/resource_helper.cpp
 )
 
-add_executable(libgb_test ${SOURCES})
-target_link_libraries(libgb_test libgb gtest_main)
+add_executable(gandalf-lib-test ${SOURCES})
+target_link_libraries(gandalf-lib-test gandalf-lib gtest_main)
 
 string(CONCAT RESOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/resources)
-target_compile_definitions(libgb_test PRIVATE RESOURCE_PATH=\"${RESOURCE_PATH}\")
+target_compile_definitions(gandalf-lib-test PRIVATE RESOURCE_PATH=\"${RESOURCE_PATH}\")
 
 include(GoogleTest)
-gtest_discover_tests(libgb_test)
+gtest_discover_tests(gandalf-lib-test)
