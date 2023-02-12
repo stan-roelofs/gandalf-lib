@@ -72,21 +72,21 @@ namespace gandalf {
 
       void Write(word address, byte value) override
       {
-        if (address == kBANK && value != 0)
+        if (address == address::BANK && value != 0)
         {
           gb_.OnBootROMFinished();
         }
-        else if (address == kKEY0)
+        else if (address == address::KEY0)
           key0_ = value;
       }
 
       byte Read(word address) const override
       {
-        assert(address < boot_rom_.size() || address == kBANK || address == kKEY0);
+        assert(address < boot_rom_.size() || address == address::BANK || address == address::KEY0);
         if (address < boot_rom_.size())
           return boot_rom_[address];
 
-        if (address == kKEY0)
+        if (address == address::KEY0)
           return key0_;
 
         return 0xFF;
@@ -101,8 +101,8 @@ namespace gandalf {
         for (word i = 0x200; i < boot_rom_.size(); ++i)
           addresses.insert(i);
 
-        addresses.insert(kBANK);
-        addresses.insert(kKEY0);
+        addresses.insert(address::BANK);
+        addresses.insert(address::KEY0);
         return addresses;
       }
 

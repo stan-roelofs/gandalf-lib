@@ -15,7 +15,7 @@ namespace gandalf {
         assert(address <= 0x8000 || BETWEEN(address, 0xA000, 0xC000));
 
         if (address <= 0x8000)
-            return rom_[address / kROMBankSize][address % kROMBankSize];
+            return rom_[address / ROMBankSize][address % ROMBankSize];
         else if (BETWEEN(address, 0xA000, 0xC000)) {
             if (ram_.size() > 0)
                 return ram_[0][address % 0xA000];

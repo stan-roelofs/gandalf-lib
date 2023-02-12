@@ -68,7 +68,7 @@ namespace gandalf {
             {
                 UpdateStatInterruptLine(kStatBitModeOAM, true); // This bit also triggers an interrupt when VBlank starts
 
-                memory_.Write(kIF, memory_.Read(kIF) | kVBlankInterruptMask);
+                memory_.Write(address::IF, memory_.Read(address::IF) | VBlankInterruptMask);
                 for (auto listener : vblank_listeners_)
                     listener->OnVBlank();
             }
@@ -112,7 +112,7 @@ namespace gandalf {
             if (line_ticks_ >= kTicksPerLine) {
                 lcd_.SetLY(lcd_.GetLY() + 1);
 
-                if (lcd_.GetLY() >= kScreenHeight) {
+                if (lcd_.GetLY() >= ScreenHeight) {
                     lcd_mode_ = LCD::Mode::VBlank;
                 }
                 else {
@@ -120,7 +120,7 @@ namespace gandalf {
                     fetched_sprites_.clear();
                 }
 
-                CheckLYEqualsLYC();
+                ChecLYEqualsLYC();
                 line_ticks_ = 0;
             }
             break;
@@ -136,13 +136,13 @@ namespace gandalf {
                     lcd_.SetLY(0);
                 }
                 else
-                    CheckLYEqualsLYC();
+                    ChecLYEqualsLYC();
             }
             break;
         }
     }
 
-    void PPU::CheckLYEqualsLYC()
+    void PPU::ChecLYEqualsLYC()
     {
         byte stat = lcd_.GetLCDStatus();
         if (lcd_.GetLY() == lcd_.GetLYC()) {
@@ -168,7 +168,7 @@ namespace gandalf {
         if (value && (lcd_.GetLCDStatus() & (1 << bit)))
         {
             if (stat_interrupt_line_ == 0)
-                memory_.Write(kIF, memory_.Read(kIF) | kLCDInterruptMask);
+                memory_.Write(address::IF, memory_.Read(address::IF) | LCDInterruptMask);
 
             stat_interrupt_line_ |= (1 << bit);
         }
@@ -178,32 +178,32 @@ namespace gandalf {
 
     byte PPU::Read(word address) const
     {
-        assert(BETWEEN(address, 0x8000, 0xA000) || BETWEEN(address, 0xFE00, 0xFEA0) || address == kVBK || address == kOPRI);
+        assert(BETWEEN(address, 0x8000, 0xA000) || BETWEEN(address, 0xFE00, 0xFEA0) || address == address::VBK || address == address::OPRI);
 
         // TODO only accessible during certain modes
         if (address >= 0x8000 && address < 0xA000)
             return vram_[current_vram_bank_][address - 0x8000];
         else if (address >= 0xFE00 && address < 0xFEA0)
             return oam_[address - 0xFE00];
-        else if (mode_ != GameboyMode::DMG && address == kVBK)
+        else if (mode_ != GameboyMode::DMG && address == address::VBK)
             return current_vram_bank_ == 0 ? 0xFE : 0xFF;
-        else if (mode_ != GameboyMode::DMG && address == kOPRI)
+        else if (mode_ != GameboyMode::DMG && address == address::OPRI)
             return opri_;
         return 0xFF;
     }
 
     void PPU::Write(word address, byte value)
     {
-        assert(BETWEEN(address, 0x8000, 0xA000) || BETWEEN(address, 0xFE00, 0xFEA0) || address == kVBK || address == kOPRI);
+        assert(BETWEEN(address, 0x8000, 0xA000) || BETWEEN(address, 0xFE00, 0xFEA0) || address == address::VBK || address == address::OPRI);
 
         // TODO only accessible during certain modes
         if (address >= 0x8000 && address < 0xA000)
             vram_[current_vram_bank_][address - 0x8000] = value;
         else if (address >= 0xFE00 && address < 0xFEA0)
             oam_[address - 0xFE00] = value;
-        else if (mode_ != GameboyMode::DMG && address == kVBK)
+        else if (mode_ != GameboyMode::DMG && address == address::VBK)
             current_vram_bank_ = value & 0x1;
-        else if (mode_ != GameboyMode::DMG && address == kOPRI)
+        else if (mode_ != GameboyMode::DMG && address == address::OPRI)
             opri_ = value;
     }
 
@@ -216,8 +216,8 @@ namespace gandalf {
         for (word i = 0xFE00; i < 0xFEA0; ++i)
             result.insert(i);
 
-        result.insert(kVBK);
-        result.insert(kOPRI);
+        result.insert(address::VBK);
+        result.insert(address::OPRI);
         return result;
     }
 
@@ -258,7 +258,7 @@ namespace gandalf {
 
     bool PPU::Pipeline::Done() const
     {
-        return pixels_pushed_ == kScreenWidth && fetcher_state_ == FetcherState::FetchTileSleep;
+        return pixels_pushed_ == ScreenWidth && fetcher_state_ == FetcherState::FetchTileSleep;
     }
 
     void PPU::Pipeline::Process()

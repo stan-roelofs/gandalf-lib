@@ -31,7 +31,7 @@ namespace gandalf {
         void SetMode(GameboyMode mode);
 
     private:
-        void CheckLYEqualsLYC();
+        void ChecLYEqualsLYC();
         void UpdateStatInterruptLine(int bit, bool value);
 
         Memory& memory_;

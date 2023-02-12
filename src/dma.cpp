@@ -60,15 +60,15 @@ namespace gandalf
 
     byte DMA::Read(word address) const
     {
-        assert(address == kDMA);
+        assert(address == address::DMA);
         (void)address;
         return dma_;
     }
 
     void DMA::Write(word address, byte value)
     {
-        assert(address == kDMA);
-        if (address != kDMA)
+        assert(address == address::DMA);
+        if (address != address::DMA)
             return;
         dma_ = value;
 
@@ -93,6 +93,6 @@ namespace gandalf
 
     std::set<word> DMA::GetAddresses() const
     {
-        return { kDMA };
+        return { address::DMA };
     }
 }

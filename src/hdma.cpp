@@ -83,24 +83,24 @@ namespace gandalf
 
     byte HDMA::Read(word address) const
     {
-        assert(address == kHDMA1 || address == kHDMA2 || address == kHDMA3 || address == kHDMA4 || address == kHDMA5);
+        assert(address == address::HDMA1 || address == address::HDMA2 || address == address::HDMA3 || address == address::HDMA4 || address == address::HDMA5);
             
         if (mode_ != GameboyMode::CGB)
             return 0xFF;
 
         switch (address)
         {
-        case kHDMA1:
-        case kHDMA2:
-        case kHDMA3:
-        case kHDMA4:
+        case address::HDMA1:
+        case address::HDMA2:
+        case address::HDMA3:
+        case address::HDMA4:
             return 0xFF;
             /*
             Reading from Register FF55 returns the remaining length (divided by 10h, minus 1), a value of 0FFh indicates that the transfer has completed.
             It is also possible to terminate an active HBlank transfer by writing zero to Bit 7 of FF55.
             In that case reading from FF55 will return how many $10 “blocks” remained (minus 1) in the lower 7 bits, but Bit 7 will be read as “1”.
             Stopping the transfer doesn’t set HDMA1-4 to $FF. */
-        case kHDMA5:
+        case address::HDMA5:
         {
             if (state_ == State::kIdle)
                 return 0xFF;
@@ -117,26 +117,26 @@ namespace gandalf
 
     void HDMA::Write(word address, byte value)
     {
-        assert(address == kHDMA1 || address == kHDMA2 || address == kHDMA3 || address == kHDMA4 || address == kHDMA5);
+        assert(address == address::HDMA1 || address == address::HDMA2 || address == address::HDMA3 || address == address::HDMA4 || address == address::HDMA5);
 
         if (mode_ != GameboyMode::CGB)
             return;
 
         switch (address)
         {
-        case kHDMA1:
+        case address::HDMA1:
             hdma1_ = value;
             break;
-        case kHDMA2:
+        case address::HDMA2:
             hdma2_ = value;
             break;
-        case kHDMA3:
+        case address::HDMA3:
             hdma3_ = value;
             break;
-        case kHDMA4:
+        case address::HDMA4:
             hdma4_ = value;
             break;
-        case kHDMA5:
+        case address::HDMA5:
         {
             if (state_ == State::kIdle || state_ == State::kTerminated || (hblank_ && (value & 0x80) != 0))
                 StartTransfer(value);
@@ -173,6 +173,6 @@ namespace gandalf
 
     std::set<word> HDMA::GetAddresses() const
     {
-        return { kHDMA1, kHDMA2, kHDMA3, kHDMA4, kHDMA5 };
+        return { address::HDMA1, address::HDMA2, address::HDMA3, address::HDMA4, address::HDMA5 };
     }
 }

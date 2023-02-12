@@ -10,7 +10,7 @@ namespace gandalf {
     class LCD: public Memory::AddressHandler {
     public:
         using ABGR1555 = word;
-        using VideoBuffer = std::array<ABGR1555, kScreenWidth* kScreenHeight>;
+        using VideoBuffer = std::array<ABGR1555, ScreenWidth* ScreenHeight>;
 
         LCD(GameboyMode mode);
         virtual ~LCD();

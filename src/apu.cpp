@@ -49,20 +49,20 @@ namespace gandalf
     {
         assert(BETWEEN(address, 0xFF10, 0xFF27) || BETWEEN(address, 0xFF30, 0xFF40));
 
-        if (address <= kNR44)
+        if (address <= address::NR44)
         {
-            const int channel = (address - kNR10) / 5;
-            const int reg = (address - kNR10) % 5;
+            const int channel = (address - address::NR10) / 5;
+            const int reg = (address - address::NR10) % 5;
             sound_channels_[channel]->SetRegister(reg, value);
         }
-        else if (address == kNR50)
+        else if (address == address::NR50)
         {
             vin_left_ = (value & 0x80) != 0;
             vin_right_ = (value & 0x08) != 0;
             left_volume_ = (value & 0x07);
             right_volume_ = (value & 0x70) >> 4;
         }
-        else if (address == kNR51)
+        else if (address == address::NR51)
         {
             channel_right_enabled_[0] = (value & 0x01) != 0;
             channel_right_enabled_[1] = (value & 0x02) != 0;
@@ -73,7 +73,7 @@ namespace gandalf
             channel_left_enabled_[2] = (value & 0x40) != 0;
             channel_left_enabled_[3] = (value & 0x80) != 0;
         }
-        else if (address == kNR52)
+        else if (address == address::NR52)
             sound_enabled_ = (value & 0x80) != 0;
         else if (address >= 0xFF30)
             wave_ram_[address - 0xFF30] = value;
@@ -82,13 +82,13 @@ namespace gandalf
     byte APU::Read(word address) const
     {
         assert(BETWEEN(address, 0xFF10, 0xFF27) || BETWEEN(address, 0xFF30, 0xFF40));
-        if (address <= kNR44)
+        if (address <= address::NR44)
         {
-            const int channel = (address - kNR10) / 5;
-            const int reg = (address - kNR10) % 5;
+            const int channel = (address - address::NR10) / 5;
+            const int reg = (address - address::NR10) % 5;
             return sound_channels_[channel]->GetRegister(reg);
         }
-        else if (address == kNR50)
+        else if (address == address::NR50)
         {
             byte result = 0;
             result |= vin_left_ ? 0x80 : 0;
@@ -97,7 +97,7 @@ namespace gandalf
             result |= right_volume_ << 4;
             return result;
         }
-        else if (address == kNR51)
+        else if (address == address::NR51)
         {
             byte result = 0;
             for (int i = 0; i < 4; ++i)
@@ -107,7 +107,7 @@ namespace gandalf
                 result |= channel_left_enabled_[i] ? (1 << (i + 4)) : 0;
             return result;
         }
-        else if (address == kNR52)
+        else if (address == address::NR52)
         {
             byte result = 0x70; // Unused bits are 1
             if (sound_enabled_)

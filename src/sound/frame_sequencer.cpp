@@ -4,7 +4,7 @@
 
 namespace
 {
-    const int kDivider = gandalf::kCPUFrequency / 512;
+    const int kDivider = gandalf::CPUFrequency / 512;
 }
 
 namespace gandalf

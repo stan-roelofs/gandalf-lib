@@ -17,11 +17,11 @@ namespace gandalf {
     }
 
     void Serial::Write(word address, byte value) {
-        assert(address == kSB || address == kSC);
+        assert(address == address::SB || address == address::SC);
 
-        if (address == kSB)
+        if (address == address::SB)
             sb_ = value;
-        else if (address == kSC) {
+        else if (address == address::SC) {
             in_progress_ = value & 0x80;
             if (mode_ == GameboyMode::CGB)
                 fast_clock_speed_ = value & 0x2;
@@ -31,15 +31,15 @@ namespace gandalf {
 
     std::set<word> Serial::GetAddresses() const
     {
-        return { kSB, kSC };
+        return { address::SB, address::SC };
     }
 
     byte Serial::Read(word address) const {
-        assert(address == kSB || address == kSC);
+        assert(address == address::SB || address == address::SC);
 
-        if (address == kSB)
+        if (address == address::SB)
             return sb_;
-        else if (address == kSC)
+        else if (address == address::SC)
         {
             byte value = 0x7C;
             if (in_progress_)

@@ -12,7 +12,7 @@ namespace
     constexpr int NUMBER_OF_CHANNELS = 2;
     constexpr int BUFFER_SIZE_SAMPLES = 1024;
     constexpr int BUFFER_SIZE_BYTES = BUFFER_SIZE_SAMPLES * NUMBER_OF_CHANNELS * SDL_AUDIO_BITSIZE(FORMAT) / 8;
-    constexpr int DOWNSAMPLING = gandalf::kCPUFrequency / FREQUENCY;
+    constexpr int DOWNSAMPLING = gandalf::CPUFrequency / FREQUENCY;
 }
 
 

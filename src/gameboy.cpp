@@ -91,7 +91,7 @@ namespace gandalf {
         assert(cartridge_.Loaded());
         memory_.Register(cartridge_);
 
-        const byte key0 = boot_rom_handler_->Read(kKEY0);
+        const byte key0 = boot_rom_handler_->Read(address::KEY0);
         if (model_ == Model::CGB && key0 == 0x4)
         {
             mode_ = GameboyMode::DMGCompatibility;

@@ -7,18 +7,18 @@
 
 namespace gandalf
 {
-    class Joypad : public Memory::AddressHandler
+    class Joypad: public Memory::AddressHandler
     {
     public:
         enum Button {
-            kRight,
-            kLeft,
-            kUp,
-            kDown,
-            kA,
-            kB,
-            kSelect,
-            kStart,
+            Right,
+            Left,
+            Up,
+            Down,
+            A,
+            B,
+            Select,
+            Start,
         };
 
         Joypad(Memory& memory);

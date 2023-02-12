@@ -16,7 +16,7 @@ namespace gandalf {
 
     byte WRAM::Read(word address) const
     {
-        assert(BETWEEN(address, 0xC000, 0xE000) || BETWEEN(address, 0xE000, 0xFE00) || address == kSVBK);
+        assert(BETWEEN(address, 0xC000, 0xE000) || BETWEEN(address, 0xE000, 0xFE00) || address == address::SVKB);
 
         if (address >= 0xC000 && address < 0xD000)
             return data_[0][address - 0xC000];
@@ -26,7 +26,7 @@ namespace gandalf {
             return data_[0][address - 0xE000];
         else if (address >= 0xF000 && address < 0xFE00)
             return data_[wram_bank_][address - 0xF000];
-        else if (mode_ != GameboyMode::DMG && address == kSVBK)
+        else if (mode_ != GameboyMode::DMG && address == address::SVKB)
             return (byte)(0xF8 | wram_bank_);
 
         return 0xFF;
@@ -34,7 +34,7 @@ namespace gandalf {
 
     void WRAM::Write(word address, byte value)
     {
-        assert(BETWEEN(address, 0xC000, 0xE000) || BETWEEN(address, 0xE000, 0xFE00) || address == kSVBK);
+        assert(BETWEEN(address, 0xC000, 0xE000) || BETWEEN(address, 0xE000, 0xFE00) || address == address::SVKB);
 
         if (address >= 0xC000 && address < 0xD000)
             data_[0][address - 0xC000] = value;
@@ -44,7 +44,7 @@ namespace gandalf {
             data_[0][address - 0xE000] = value;
         else if (address >= 0xF000 && address < 0xFE00)
             data_[wram_bank_][address - 0xF000] = value;
-        else if (mode_ != GameboyMode::DMG && address == kSVBK) {
+        else if (mode_ != GameboyMode::DMG && address == address::SVKB) {
             wram_bank_ = value & 0x7;
             if (wram_bank_ == 0)
                 wram_bank_ = 1;
@@ -61,7 +61,7 @@ namespace gandalf {
         for (word i = 0xE000; i < 0xFE00; ++i)
             result.insert(i);
 
-        result.insert(kSVBK);
+        result.insert(address::SVKB);
         return result;
 
     }

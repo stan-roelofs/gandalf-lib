@@ -53,7 +53,7 @@ namespace mooneye {
 
         void Write(word address, byte value) override
         {
-            if (address == kSB) {
+            if (address == SB) {
                 serial_bytes_.push_back(value);
                 done_ = serial_bytes_.size() == 6;
             }

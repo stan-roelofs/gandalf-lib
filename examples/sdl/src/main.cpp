@@ -37,7 +37,7 @@ static bool InitializeSDL()
         return false;
     }
     window = SDL_CreateWindow(
-        "Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, gandalf::kScreenWidth * 4, gandalf::kScreenHeight * 4,
+        "Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, gandalf::ScreenWidth * 4, gandalf::ScreenHeight * 4,
         SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
     );
     if (window == NULL) {
@@ -53,12 +53,14 @@ static bool InitializeSDL()
     }
 
     // The gameboy stores its pixels in a 15-bit color format, so we need to use SDL_PIXELFORMAT_ABGR1555 here
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, gandalf::kScreenWidth, gandalf::kScreenHeight);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, gandalf::ScreenWidth, gandalf::ScreenHeight);
     if (texture == NULL)
     {
         std::cout << "Failed to create texture: " << SDL_GetError();
         return false;
     }
+
+    return true;
 }
 
 // The VBlank interrupt is called when the gameboy is done drawing the current frame.
@@ -125,28 +127,28 @@ static void HandleKey(SDL_Keycode key, bool pressed)
     switch (key)
     {
     case SDLK_UP:
-        gameboy->SetButtonState(gandalf::Joypad::kUp, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::Up, pressed);
         break;
     case SDLK_DOWN:
-        gameboy->SetButtonState(gandalf::Joypad::kDown, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::Down, pressed);
         break;
     case SDLK_LEFT:
-        gameboy->SetButtonState(gandalf::Joypad::kLeft, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::Left, pressed);
         break;
     case SDLK_RIGHT:
-        gameboy->SetButtonState(gandalf::Joypad::kRight, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::Right, pressed);
         break;
     case SDLK_z:
-        gameboy->SetButtonState(gandalf::Joypad::kA, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::A, pressed);
         break;
     case SDLK_x:
-        gameboy->SetButtonState(gandalf::Joypad::kB, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::B, pressed);
         break;
     case SDLK_RETURN:
-        gameboy->SetButtonState(gandalf::Joypad::kStart, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::Start, pressed);
         break;
     case SDLK_TAB:
-        gameboy->SetButtonState(gandalf::Joypad::kSelect, pressed);
+        gameboy->SetButtonState(gandalf::Joypad::Select, pressed);
         break;
     }
 }
@@ -200,7 +202,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        SDL_UpdateTexture(texture, NULL, front_buffer->data(), gandalf::kScreenWidth * sizeof(gandalf::LCD::ABGR1555));
+        SDL_UpdateTexture(texture, NULL, front_buffer->data(), gandalf::ScreenWidth * sizeof(gandalf::LCD::ABGR1555));
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);

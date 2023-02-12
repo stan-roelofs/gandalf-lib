@@ -57,7 +57,7 @@ namespace blargg {
         SerialOutputValidator(): Memory::AddressHandler("BlarggTest - SerialOutputReader"), done_(false), last_character_(0) {}
         void Write(word address, byte value) override
         {
-            if (address == kSC) {
+            if (address == SC) {
                 if (value == 0x81) {
                     output_ += last_character_;
                     if (output_.find("Pass") != std::string::npos || output_.find("Fail") != std::string::npos) {
@@ -65,7 +65,7 @@ namespace blargg {
                     }
                 }
             }
-            else if (address == kSB)
+            else if (address == SB)
                 last_character_ = value;
             else
                 FAIL() << "Unexpected write to serial address " << std::hex << address << " with value " << std::hex << value;
@@ -78,7 +78,7 @@ namespace blargg {
 
         std::set<word> GetAddresses() const override
         {
-            return { kSB, kSC };
+            return { SB, SC };
         }
 
         bool RunTestROM(Gameboy& gb) override

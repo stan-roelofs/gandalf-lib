@@ -7,8 +7,8 @@
 
 namespace gandalf
 {
-    constexpr std::size_t kROMBankSize = 0x4000;
-    constexpr std::size_t kRAMBankSize = 0x2000;
+    constexpr std::size_t ROMBankSize = 0x4000;
+    constexpr std::size_t RAMBankSize = 0x2000;
 
     class MBC {
     public:
@@ -19,8 +19,8 @@ namespace gandalf
         virtual void Write(word address, byte value) = 0;
 
     protected:
-        using ROMBank = std::array<byte, kROMBankSize>;
-        using RAMBank = std::array<byte, kRAMBankSize>;
+        using ROMBank = std::array<byte, ROMBankSize>;
+        using RAMBank = std::array<byte, RAMBankSize>;
         std::vector<ROMBank> rom_;
         std::vector<RAMBank> ram_;
     };

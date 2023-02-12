@@ -7,20 +7,19 @@
 #include <gandalf/constants.h>
 
 namespace gandalf {
-
-  const int kSpeedSwitchClocks = 8200;
+  constexpr int SpeedSwitchClocks = 8200;
 
 #define ADVANCE_IO(cycles) io_.Tick(cycles, double_speed_);
 
-#define SET_ZFLAG() registers_.f() |= kZFlagMask;
-#define SET_NFLAG() registers_.f() |= kNFlagMask;
-#define SET_HFLAG() registers_.f() |= kHFlagMask;
-#define SET_CFLAG() registers_.f() |= kCFlagMask;
+#define SET_ZFLAG() registers_.f() |= ZFlagMask;
+#define SET_NFLAG() registers_.f() |= NFlagMask;
+#define SET_HFLAG() registers_.f() |= HFlagMask;
+#define SET_CFLAG() registers_.f() |= CFlagMask;
 
-#define CLEAR_ZFLAG() registers_.f() &= ~kZFlagMask;
-#define CLEAR_NFLAG() registers_.f() &= ~kNFlagMask;
-#define CLEAR_HFLAG() registers_.f() &= ~kHFlagMask;
-#define CLEAR_CFLAG() registers_.f() &= ~kCFlagMask;
+#define CLEAR_ZFLAG() registers_.f() &= ~ZFlagMask;
+#define CLEAR_NFLAG() registers_.f() &= ~NFlagMask;
+#define CLEAR_HFLAG() registers_.f() &= ~HFlagMask;
+#define CLEAR_CFLAG() registers_.f() &= ~CFlagMask;
 
 #define READ(address, destination)                                             \
   (destination) = memory_.Read(address); \
@@ -55,7 +54,7 @@ namespace gandalf {
 
 #define INC_R(r)                                                               \
   ++(r);                                                                       \
-  registers_.f() &= ~(kZFlagMask | kHFlagMask | kNFlagMask);                   \
+  registers_.f() &= ~(ZFlagMask | HFlagMask | NFlagMask);                   \
   if ((r) == 0)                                                                \
     SET_ZFLAG()                                                                \
   if ((r&0x0F) == 0)                                                           \
@@ -63,8 +62,8 @@ namespace gandalf {
 
 #define DEC_R(r)                                                               \
   --(r);                                                                       \
-  registers_.f() &= ~(kZFlagMask | kHFlagMask);                                \
-  registers_.f() |= (kNFlagMask);                                              \
+  registers_.f() &= ~(ZFlagMask | HFlagMask);                                \
+  registers_.f() |= (NFlagMask);                                              \
   if ((r) == 0)                                                                \
     SET_ZFLAG()                                                                \
   if (((r)&0x0F) == 0x0F)                                                      \
@@ -98,7 +97,7 @@ namespace gandalf {
 
 #define RL(r)                                                                  \
   {                                                                            \
-    const bool carry = registers_.f() & kCFlagMask;                            \
+    const bool carry = registers_.f() & CFlagMask;                             \
     registers_.f() = 0;                                                        \
     const bool new_carry = (r)&0x80;                                           \
     (r) = ((r) << 1);                                                          \
@@ -112,7 +111,7 @@ namespace gandalf {
 
 #define RR(r)                                                                  \
   {                                                                            \
-    const bool carry = registers_.f() & kCFlagMask;                            \
+    const bool carry = registers_.f() & CFlagMask;                             \
     registers_.f() = 0;                                                        \
     const bool new_carry = (r)&0x1;                                            \
     (r) = (r) >> 1;                                                            \
@@ -151,7 +150,7 @@ namespace gandalf {
 
 #define RLA()                                                                  \
   {                                                                            \
-    const bool carry = registers_.f() & kCFlagMask;                            \
+    const bool carry = registers_.f() & CFlagMask;                            \
     registers_.f() = 0;                                                        \
     const bool new_carry = registers_.a() & 0x80;                              \
     registers_.a() = (registers_.a() << 1);                                    \
@@ -176,7 +175,7 @@ namespace gandalf {
     word hl = registers_.hl();                                                 \
     ADVANCE_IO(4);                                                               \
     registers_.hl() += (r);                                                    \
-    registers_.f() &= ~(kNFlagMask | kCFlagMask | kHFlagMask);                 \
+    registers_.f() &= ~(NFlagMask | CFlagMask | HFlagMask);                 \
     if (((hl & 0xFFF) + ((r)&0xFFF)) > 0xFFF)                                  \
       SET_HFLAG()                                                              \
     if (registers_.hl() < hl)                                                  \
@@ -202,17 +201,17 @@ namespace gandalf {
   }
 
 #define DAA()                                                                  \
-  if (registers_.f() & kNFlagMask) {                                           \
-    if (registers_.f() & kCFlagMask)                                           \
+  if (registers_.f() & NFlagMask) {                                           \
+    if (registers_.f() & CFlagMask)                                           \
       registers_.a() -= 0x60;                                                  \
-    if (registers_.f() & kHFlagMask)                                           \
+    if (registers_.f() & HFlagMask)                                           \
       registers_.a() -= 0x06;                                                  \
   } else {                                                                     \
-    if (registers_.f() & kCFlagMask || registers_.a() > 0x99) {                \
+    if (registers_.f() & CFlagMask || registers_.a() > 0x99) {                \
       registers_.a() += 0x60;                                                  \
       SET_CFLAG()                                                              \
     }                                                                          \
-    if (registers_.f() & kHFlagMask || (registers_.a() & 0x0F) > 0x09)         \
+    if (registers_.f() & HFlagMask || (registers_.a() & 0x0F) > 0x09)         \
       registers_.a() += 0x06;                                                  \
   }                                                                            \
   if (registers_.a() == 0)                                                     \
@@ -232,7 +231,7 @@ namespace gandalf {
     READ(registers_.hl(), value);                                              \
     ++value;                                                                   \
     WRITE(registers_.hl(), value);                                             \
-    registers_.f() &= ~(kZFlagMask | kNFlagMask | kHFlagMask);                 \
+    registers_.f() &= ~(ZFlagMask | NFlagMask | HFlagMask);                 \
     if (value == 0)                                                            \
       SET_ZFLAG()                                                              \
     if ((value & 0x0F) == 0)                                                   \
@@ -245,8 +244,8 @@ namespace gandalf {
     READ(registers_.hl(), value);                                              \
     --value;                                                                   \
     WRITE(registers_.hl(), value);                                             \
-    registers_.f() &= ~(kZFlagMask | kHFlagMask);                              \
-    registers_.f() |= kNFlagMask;                                              \
+    registers_.f() &= ~(ZFlagMask | HFlagMask);                              \
+    registers_.f() |= NFlagMask;                                              \
     if (value == 0)                                                            \
       SET_ZFLAG()                                                              \
     if ((value & 0x0F) == 0x0F)                                                \
@@ -260,8 +259,8 @@ namespace gandalf {
     WRITE(registers_.hl(), value);                                             \
   }
 
-#define SCF() registers_.f() = (registers_.f() & 0x80) | kCFlagMask;
-#define CCF() registers_.f() = (registers_.f() & 0x90) ^ kCFlagMask;
+#define SCF() registers_.f() = (registers_.f() & 0x80) | CFlagMask;
+#define CCF() registers_.f() = (registers_.f() & 0x90) ^ CFlagMask;
 
 #define HALT()                                                                 \
   if (registers_.interrupt_master_enable) {                                    \
@@ -299,7 +298,7 @@ namespace gandalf {
   {                                                                            \
     byte value_copy = value;                                                   \
     byte a = registers_.a();                                                   \
-    const byte carry = ((registers_.f() & kCFlagMask) > 0) ? 1 : 0;            \
+    const byte carry = ((registers_.f() & CFlagMask) > 0) ? 1 : 0;            \
     byte new_a = registers_.a() + (value) + carry;                             \
     registers_.a() = new_a;                                                    \
     registers_.f() = 0;                                                        \
@@ -323,7 +322,7 @@ namespace gandalf {
     byte value_copy = value;                                                   \
     byte a = registers_.a();                                                   \
     registers_.a() -= (value);                                                 \
-    registers_.f() = kNFlagMask;                                               \
+    registers_.f() = NFlagMask;                                               \
     if (a == value_copy)                                                       \
       SET_ZFLAG()                                                              \
     if ((a & 0xF) < (value_copy & 0xF))                                        \
@@ -343,10 +342,10 @@ namespace gandalf {
   {                                                                            \
     byte value_copy = value;                                                   \
     byte a = registers_.a();                                                   \
-    const byte carry = ((registers_.f() & kCFlagMask) != 0) ? 1 : 0;           \
+    const byte carry = ((registers_.f() & CFlagMask) != 0) ? 1 : 0;           \
     byte new_a = registers_.a() - (value) - carry;                             \
     registers_.a() = new_a;                                                    \
-    registers_.f() = kNFlagMask;                                               \
+    registers_.f() = NFlagMask;                                               \
     if (new_a == 0)                                                            \
       SET_ZFLAG()                                                              \
     if ((a & 0xF) < (value_copy & 0xF) + carry)                                \
@@ -364,7 +363,7 @@ namespace gandalf {
 
 #define AND_A(value)                                                           \
   registers_.a() &= (value);                                                   \
-  registers_.f() = kHFlagMask | (registers_.a() == 0 ? kZFlagMask : 0);
+  registers_.f() = HFlagMask | (registers_.a() == 0 ? ZFlagMask : 0);
 
 #define AND_A_HL()                                                             \
   {                                                                            \
@@ -375,7 +374,7 @@ namespace gandalf {
 
 #define XOR_A(value)                                                           \
   registers_.a() ^= (value);                                                   \
-  registers_.f() = (registers_.a() == 0 ? kZFlagMask : 0);
+  registers_.f() = (registers_.a() == 0 ? ZFlagMask : 0);
 
 #define XOR_A_HL()                                                             \
   {                                                                            \
@@ -386,7 +385,7 @@ namespace gandalf {
 
 #define OR_A(value)                                                            \
   registers_.a() |= (value);                                                   \
-  registers_.f() = (registers_.a() == 0 ? kZFlagMask : 0);
+  registers_.f() = (registers_.a() == 0 ? ZFlagMask : 0);
 
 #define OR_A_HL()                                                              \
   {                                                                            \
@@ -398,7 +397,7 @@ namespace gandalf {
 #define CP_A(value)                                                            \
   {                                                                            \
     byte a = registers_.a();                                                   \
-    registers_.f() = kNFlagMask;                                               \
+    registers_.f() = NFlagMask;                                               \
     if (a == value)                                                            \
       SET_ZFLAG()                                                              \
     if ((a & 0xF) < (value & 0xF))                                             \
@@ -709,13 +708,13 @@ namespace gandalf {
 
   byte CPU::Read(word address) const
   {
-    assert(address == kIE || address == kIF || address == kKEY1);
+    assert(address == address::IE || address == address::IF || address == address::KEY1);
 
-    if (address == kIE)
+    if (address == address::IE)
       return registers_.interrupt_enable;
-    else if (address == kIF)
+    else if (address == address::IF)
       return registers_.interrupt_flags | 0xE0;
-    else if (gameboy_mode_ == GameboyMode::CGB && address == kKEY1)
+    else if (gameboy_mode_ == GameboyMode::CGB && address == address::KEY1)
     {
       byte result = static_cast<byte>(prepare_speed_switch_);
       result |= static_cast<byte>(double_speed_) << 7;
@@ -726,13 +725,13 @@ namespace gandalf {
 
   void CPU::Write(word address, byte value)
   {
-    assert(address == kIE || address == kIF || address == kKEY1);
+    assert(address == address::IE || address == address::IF || address == address::KEY1);
 
-    if (address == kIE)
+    if (address == address::IE)
       registers_.interrupt_enable = value;
-    else if (address == kIF)
+    else if (address == address::IF)
       registers_.interrupt_flags = value;
-    else if (gameboy_mode_ == GameboyMode::CGB && address == kKEY1)
+    else if (gameboy_mode_ == GameboyMode::CGB && address == address::KEY1)
     {
       prepare_speed_switch_ = (value & 0x1) != 0;
     }
@@ -740,14 +739,14 @@ namespace gandalf {
 
   std::set<word> CPU::GetAddresses() const
   {
-    return { kIE, kIF, kKEY1 };
+    return { address::IE, address::IF, address::KEY1 };
   }
 
   void CPU::Tick() {
     // Handle interrupts if two corresponding bits in IE and IF are set
     if (registers_.interrupt_enable & registers_.interrupt_flags & 0x1F) {
       halt_ = false;
-      if (registers_.interrupt_flags & kJoypadInterruptMask)
+      if (registers_.interrupt_flags & JoypadInterruptMask)
         stop_ = false;
       if (registers_.interrupt_master_enable) {
         registers_.interrupt_master_enable = false;
@@ -842,7 +841,7 @@ namespace gandalf {
     case 0x10:
       if (gameboy_mode_ == GameboyMode::CGB && prepare_speed_switch_) {
         double_speed_ = !double_speed_;
-        ADVANCE_IO(kSpeedSwitchClocks);
+        ADVANCE_IO(SpeedSwitchClocks);
       }
       //else
         //stop_ = true; // TODO
@@ -878,7 +877,7 @@ namespace gandalf {
     case 0x1F:
       RRA() break;
     case 0x20:
-      JR_CC_N((registers_.f() & kZFlagMask) == 0) break;
+      JR_CC_N((registers_.f() & ZFlagMask) == 0) break;
     case 0x21:
       LD_RR_NN(registers_.hl()) break;
     case 0x22:
@@ -894,7 +893,7 @@ namespace gandalf {
     case 0x27:
       DAA() break;
     case 0x28:
-      JR_CC_N(registers_.f() & kZFlagMask) break;
+      JR_CC_N(registers_.f() & ZFlagMask) break;
     case 0x29:
       ADD_HL_RR(registers_.hl()) break;
     case 0x2A:
@@ -910,7 +909,7 @@ namespace gandalf {
     case 0x2F:
       CPL() break;
     case 0x30:
-      JR_CC_N((registers_.f() & kCFlagMask) == 0) break;
+      JR_CC_N((registers_.f() & CFlagMask) == 0) break;
     case 0x31:
       LD_RR_NN(registers_.stack_pointer) break;
     case 0x32:
@@ -926,7 +925,7 @@ namespace gandalf {
     case 0x37:
       SCF() break;
     case 0x38:
-      JR_CC_N(registers_.f() & kCFlagMask) break;
+      JR_CC_N(registers_.f() & CFlagMask) break;
     case 0x39:
       ADD_HL_RR(registers_.stack_pointer) break;
     case 0x3A:
@@ -1190,7 +1189,7 @@ namespace gandalf {
     case 0xA6:
       AND_A_HL() break;
     case 0xA7:
-      registers_.f() = kHFlagMask | (registers_.a() == 0 ? kZFlagMask : 0);
+      registers_.f() = HFlagMask | (registers_.a() == 0 ? ZFlagMask : 0);
       break;
     case 0xA8:
       XOR_A(registers_.b()) break;
@@ -1207,7 +1206,7 @@ namespace gandalf {
     case 0xAE:
       XOR_A_HL() break;
     case 0xAF:
-      registers_.af() = kZFlagMask;
+      registers_.af() = ZFlagMask;
       break; // XOR A, A
     case 0xB0:
       OR_A(registers_.b()) break;
@@ -1224,7 +1223,7 @@ namespace gandalf {
     case 0xB6:
       OR_A_HL() break;
     case 0xB7:
-      registers_.f() = (registers_.a() == 0 ? kZFlagMask : 0);
+      registers_.f() = (registers_.a() == 0 ? ZFlagMask : 0);
       break;
     case 0xB8:
       CP_A(registers_.b()) break;
@@ -1241,18 +1240,18 @@ namespace gandalf {
     case 0xBE:
       CP_A_HL() break;
     case 0xBF:
-      registers_.f() = kZFlagMask | kNFlagMask;
+      registers_.f() = ZFlagMask | NFlagMask;
       break;
     case 0xC0:
-      RET_CC((registers_.f() & kZFlagMask) == 0) break;
+      RET_CC((registers_.f() & ZFlagMask) == 0) break;
     case 0xC1:
       POP_RR(registers_.bc()) break;
     case 0xC2:
-      JP_CC_NN((registers_.f() & kZFlagMask) == 0) break;
+      JP_CC_NN((registers_.f() & ZFlagMask) == 0) break;
     case 0xC3:
       JP_NN() break;
     case 0xC4:
-      CALL_CC_NN((registers_.f() & kZFlagMask) == 0) break;
+      CALL_CC_NN((registers_.f() & ZFlagMask) == 0) break;
     case 0xC5:
       PUSH_RR(registers_.bc()) break;
     case 0xC6:
@@ -1260,11 +1259,11 @@ namespace gandalf {
     case 0xC7:
       RST(0x00) break;
     case 0xC8:
-      RET_CC(registers_.f() & kZFlagMask) break;
+      RET_CC(registers_.f() & ZFlagMask) break;
     case 0xC9:
       RET() break;
     case 0xCA:
-      JP_CC_NN(registers_.f() & kZFlagMask) break;
+      JP_CC_NN(registers_.f() & ZFlagMask) break;
     case 0xCB:
       READ_PC(opcode_)
 
@@ -1784,7 +1783,7 @@ namespace gandalf {
         }
       break;
     case 0xCC:
-      CALL_CC_NN(registers_.f() & kZFlagMask) break;
+      CALL_CC_NN(registers_.f() & ZFlagMask) break;
     case 0xCD:
       CALL_NN() break;
     case 0xCE:
@@ -1792,13 +1791,13 @@ namespace gandalf {
     case 0xCF:
       RST(0x08) break;
     case 0xD0:
-      RET_CC((registers_.f() & kCFlagMask) == 0) break;
+      RET_CC((registers_.f() & CFlagMask) == 0) break;
     case 0xD1:
       POP_RR(registers_.de()) break;
     case 0xD2:
-      JP_CC_NN((registers_.f() & kCFlagMask) == 0) break;
+      JP_CC_NN((registers_.f() & CFlagMask) == 0) break;
     case 0xD4:
-      CALL_CC_NN((registers_.f() & kCFlagMask) == 0) break;
+      CALL_CC_NN((registers_.f() & CFlagMask) == 0) break;
     case 0xD5:
       PUSH_RR(registers_.de()) break;
     case 0xD6:
@@ -1806,13 +1805,13 @@ namespace gandalf {
     case 0xD7:
       RST(0x10) break;
     case 0xD8:
-      RET_CC((registers_.f() & kCFlagMask) != 0) break;
+      RET_CC((registers_.f() & CFlagMask) != 0) break;
     case 0xD9:
       RETI() break;
     case 0xDA:
-      JP_CC_NN((registers_.f() & kCFlagMask) != 0) break;
+      JP_CC_NN((registers_.f() & CFlagMask) != 0) break;
     case 0xDC:
-      CALL_CC_NN((registers_.f() & kCFlagMask) != 0) break;
+      CALL_CC_NN((registers_.f() & CFlagMask) != 0) break;
     case 0xDE:
       SBC_A_N() break;
     case 0xDF:

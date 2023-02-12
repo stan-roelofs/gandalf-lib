@@ -37,42 +37,44 @@ namespace gandalf
 
     byte LCD::Read(word address) const
     {
-        assert(address == kLCDC || address == kSTAT || address == kSCY ||
-            address == kSCX || address == kLY || address == kLYC ||
-            address == kBGP || address == kOBP0 || address == kOBP1 || address == kWY ||
-            address == kWX);
+        using namespace address;
+        
+        assert(address == LCDC || address == STAT || address == SCY ||
+            address == SCX || address == LY || address == LYC ||
+            address == BGP || address == OBP0 || address == OBP1 || address == WY ||
+            address == WX);
 
         switch (address)
         {
-        case kLCDC:
+        case LCDC:
             return lcdc_;
-        case kSTAT:
+        case STAT:
             return stat_ | 0x80;
-        case kSCY:
+        case SCY:
             return scy_;
-        case kSCX:
+        case SCX:
             return scx_;
-        case kLY:
+        case LY:
             return ly_;
-        case kLYC:
+        case LYC:
             return lyc_;
-        case kWY:
+        case WY:
             return wy_;
-        case kWX:
+        case WX:
             return wx_;
-        case kBGP:
+        case BGP:
             return bgp_;
-        case kOBP0:
+        case OBP0:
             return obp0_;
-        case kOBP1:
+        case OBP1:
             return obp1_;
-        case kBCPS:
+        case BCPS:
             return mode_ != GameboyMode::DMG ? bcps_ | 0x40 : 0xFF;
-        case kOCPS:
+        case OCPS:
             return mode_ != GameboyMode::DMG ? ocps_ | 0x40 : 0xFF;
-        case kBCPD:
+        case BCPD:
             return mode_ != GameboyMode::DMG ? static_cast<byte>(bcpd_[(bcps_ & 0x3F) / 2] & 0xFF) : 0xFF;
-        case kOCPD:
+        case OCPD:
             return mode_ != GameboyMode::DMG ? static_cast<byte>(ocpd_[(ocps_ & 0x3F) / 2] & 0xFF) : 0xFF;
         default:
             return 0xFF;
@@ -81,15 +83,17 @@ namespace gandalf
 
     void LCD::Write(word address, byte value)
     {
-        assert(address == kLCDC || address == kSTAT || address == kSCY ||
-            address == kSCX || address == kLY || address == kLYC ||
-            address == kBGP || address == kOBP0 || address == kOBP1 || address == kWY ||
-            address == kWX || address == kOCPS || address == kBCPS || address == kOCPD ||
-            address == kBCPD);
+        using namespace address;
+        
+        assert(address == LCDC || address == STAT || address == SCY ||
+            address == SCX || address == LY || address == LYC ||
+            address == BGP || address == OBP0 || address == OBP1 || address == WY ||
+            address == WX || address == OCPS || address == BCPS || address == OCPD ||
+            address == BCPD);
 
         switch (address)
         {
-        case kLCDC:
+        case LCDC:
         {
             lcdc_ = value;
             // LCD disabled?
@@ -100,41 +104,41 @@ namespace gandalf
             }
             break;
         }
-        case kSTAT:
+        case STAT:
             stat_ = (stat_ & 0b11) | (value & 0xFC);
             break;
-        case kSCY:
+        case SCY:
             scy_ = value;
             break;
-        case kSCX:
+        case SCX:
             scx_ = value;
             break;
-        case kLY:
+        case LY:
             ly_ = value;
             break;
-        case kLYC:
+        case LYC:
             lyc_ = value;
             break;
-        case kWY:
+        case WY:
             wy_ = value;
             break;
-        case kWX:
+        case WX:
             wx_ = value;
             break;
-        case kBGP:
+        case BGP:
             bgp_ = value;
             break;
-        case kOBP0:
+        case OBP0:
             obp0_ = value;
             break;
-        case kOBP1:
+        case OBP1:
             obp1_ = value;
             break;
-        case kBCPS:
+        case BCPS:
             if (mode_ != GameboyMode::DMG)
                 bcps_ = value;
             break;
-        case kBCPD:
+        case BCPD:
             if (mode_ != GameboyMode::DMG)
             {
                 const byte index = bcps_ & 0x3F;
@@ -147,11 +151,11 @@ namespace gandalf
                     bcps_ = 0x80 | ((index + 1) & 0x3F);
             }
             break;
-        case kOCPS:
+        case OCPS:
             if (mode_ != GameboyMode::DMG)
                 ocps_ = value;
             break;
-        case kOCPD:
+        case OCPD:
             if (mode_ != GameboyMode::DMG) {
                 const byte index = ocps_ & 0x3F;
                 if (index % 2 == 0)
@@ -168,7 +172,8 @@ namespace gandalf
 
     std::set<word> LCD::GetAddresses() const
     {
-        return { kLCDC, kSTAT, kSCY, kSCX, kLY, kLYC, kWY, kWX, kBGP, kOBP0, kOBP1, kBCPS, kBCPD, kOCPS, kOCPD };
+        using namespace address;
+        return { LCDC, STAT, SCY, SCX, LY, LYC, WY, WX, BGP, OBP0, OBP1, BCPS, BCPD, OCPS, OCPD };
     }
 
     LCD::Mode LCD::GetMode() const
@@ -217,6 +222,6 @@ namespace gandalf
 
     void LCD::RenderPixel(byte x, byte color_index, bool is_sprite, byte palette_index)
     {
-        video_buffer_[kScreenWidth * ly_ + x] = is_sprite ? GetSpriteColor(color_index, palette_index) : GetBackgroundColor(color_index, palette_index);
+        video_buffer_[ScreenWidth * ly_ + x] = is_sprite ? GetSpriteColor(color_index, palette_index) : GetBackgroundColor(color_index, palette_index);
     }
 }

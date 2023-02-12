@@ -35,7 +35,7 @@ namespace gandalf
             --reload_counter_;
             if (reload_counter_ <= 4) {
                 tima_ = tma_;
-                memory_.Write(kIF, memory_.Read(kIF) | kTimerInterruptMask);
+                memory_.Write(address::IF, memory_.Read(address::IF) | TimerInterruptMask);
             }
         }
 
@@ -47,11 +47,12 @@ namespace gandalf
 
     void Timer::Write(word address, byte value)
     {
-        assert(address == kTAC || address == kTIMA || address == kTMA || address == kDIV);
+        using namespace address;
+        assert(address == TAC || address == TIMA || address == TMA || address == DIV);
 
         switch (address)
         {
-        case kTAC:
+        case TAC:
         {
             byte new_selected_bit = selected_bit[value & 0x3];
             bool new_enable = value & (1 << 2);
@@ -64,7 +65,7 @@ namespace gandalf
                 ++tima_;
                 if (tima_ == 0) {
                     tima_ = tma_;
-                    memory_.Write(kIF, memory_.Read(kIF) | kTimerInterruptMask);
+                    memory_.Write(IF, memory_.Read(IF) | TimerInterruptMask);
                 }
             }
 
@@ -73,16 +74,16 @@ namespace gandalf
             selected_bit_ = new_selected_bit;
             break;
         }
-        case kTIMA:
+        case TIMA:
             if (reload_counter_ > 4)
                 reload_counter_ = 0;
             if (reload_counter_ == 0)
                 tima_ = value;
             break;
-        case kTMA:
+        case TMA:
             tma_ = value;
             break;
-        case kDIV:
+        case DIV:
             word old_div = div_;
             div_ = 0;
             OnDIVChanged(old_div);
@@ -93,17 +94,18 @@ namespace gandalf
 
     byte Timer::Read(word address) const
     {
-        assert(address == kTAC || address == kTIMA || address == kTMA || address == kDIV);
+        using namespace address;
+        assert(address == TAC || address == TIMA || address == TMA || address == DIV);
 
         switch (address)
         {
-        case kTAC:
+        case TAC:
             return tac_ | 0xF8;
-        case kTIMA:
+        case TIMA:
             return tima_;
-        case kTMA:
+        case TMA:
             return tma_;
-        case kDIV:
+        case DIV:
             return div_ >> 8;
         default:
             return 0xFF;
@@ -112,6 +114,7 @@ namespace gandalf
 
     std::set<word> Timer::GetAddresses() const
     {
-        return { kTAC, kTIMA, kTMA, kDIV };
+        using namespace address;
+        return { TAC, TIMA, TMA, DIV };
     }
 }

@@ -38,12 +38,12 @@ namespace gandalf
         pressed_buttons_[button] = pressed;
         Update();
         if (pressed && !was_pressed)
-            memory_.Write(kIF, memory_.Read(kIF) | kJoypadInterruptMask);
+            memory_.Write(address::IF, memory_.Read(address::IF) | JoypadInterruptMask);
     }
 
     byte Joypad::Read(word address) const
     {
-        assert(address == kP1);
+        assert(address == address::P1);
         (void)address;
 
         return p1_;
@@ -51,7 +51,7 @@ namespace gandalf
 
     void Joypad::Write(word address, byte value)
     {
-        assert(address == kP1);
+        assert(address == address::P1);
         (void)address;
 
         p1_ = value & 0xF0;
@@ -60,7 +60,7 @@ namespace gandalf
 
     std::set<word> Joypad::GetAddresses() const
     {
-        return { kP1 };
+        return { address::P1 };
     }
 
     void Joypad::Update()

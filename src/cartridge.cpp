@@ -430,7 +430,7 @@ namespace gandalf {
             return false;
         }
 
-        const std::size_t expected_file_size = rom_banks * kROMBankSize;
+        const std::size_t expected_file_size = rom_banks * ROMBankSize;
         if (bytes.size() < expected_file_size)
         {
             std::cerr << "The file is too small to contain " << rom_banks << " banks of ROM" << std::endl;
