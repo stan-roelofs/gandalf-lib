@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 set(CMAKE_CXX_STANDARD 17)
  
-project(libgb)
+project(gandalf-lib VERSION 0.9.0)
 
-option(BUILD_TESTS "Build tests" OFF)
+option(GANDALF_BUILD_TESTS "Build tests" OFF)
 
 set(HEADERS
     include/gandalf/apu.h
@@ -76,17 +76,17 @@ set(SOURCES
     src/wram.cpp
 )
 
-add_library(libgb ${SOURCES} ${HEADERS})
+add_library(gandalf-lib ${SOURCES} ${HEADERS})
 
 if(MSVC)
-  target_compile_options(libgb PRIVATE /W4 /WX)
+  target_compile_options(gandalf-lib PRIVATE /W4 /WX)
 else()
-  target_compile_options(libgb PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(gandalf-lib PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
-target_include_directories(libgb PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(gandalf-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-if(BUILD_TESTS)
+if(GANDALF_BUILD_TESTS)
   enable_testing()
   add_subdirectory(external/googletest)
   add_subdirectory(tests)
