@@ -1,4 +1,7 @@
 # gandalf-lib
+![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/stan-roelofs/gandalf-lib/cmake.yml?branch=main)
+![GitHub](https://img.shields.io/github/license/stan-roelofs/gandalf-lib)
+
 A Game Boy emulation library.
 
 ## Getting started
