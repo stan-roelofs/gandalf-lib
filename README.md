@@ -37,3 +37,12 @@ Or use the following command to pull the submodules if you have already cloned t
 ```
 git submodule update --init --recursive
 ```
+
+Next you can use the following cmake options to build the tests/examples:
+- GANDALF_BUILD_TESTS (OFF by default)
+- GANDALF_BUILD_EXAMPLES (OFF by default)
+
+These should be set when calling cmake to generate the build files, i.e.
+```
+cmake .. -DGANDALF_BUILD_TESTS=ON -DGANDALF_BUILD_EXAMPLES=ON
+```
