@@ -5,15 +5,18 @@
 
 namespace gandalf
 {
-    class Serializable
+    namespace serialization
     {
-    public:
-        /// Serializes the snapshot to the given stream
-        virtual void Serialize(std::ostream& os) const = 0;
+        class Serializable
+        {
+        public:
+            /// Serializes the snapshot to the given stream
+            virtual void Serialize(std::ostream& os) const = 0;
 
-        /// Deserializes the snapshot from the given stream
-        virtual void Deserialize(std::istream& is) = 0;
-    };
+            /// Deserializes the snapshot from the given stream
+            virtual void Deserialize(std::istream& is) = 0;
+        };
+    }
 }
 
 #endif

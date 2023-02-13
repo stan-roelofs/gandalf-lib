@@ -3,10 +3,25 @@
 #include <cassert>
 
 #include <gandalf/constants.h>
+#include <gandalf/serialization.h>
 #include <gandalf/util.h>
 
 namespace gandalf {
-    WRAM::WRAM(GameboyMode mode) : Memory::AddressHandler("WRAM"),
+
+    void WRAMSnapshot::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, data);
+        serialization::Serialize(os, wram_bank);
+    }
+
+    void WRAMSnapshot::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, data);
+        serialization::Deserialize(is, wram_bank);
+    }
+
+
+    WRAM::WRAM(GameboyMode mode): Memory::AddressHandler("WRAM"),
         wram_bank_(1),
         mode_(mode)
     {
@@ -63,6 +78,19 @@ namespace gandalf {
 
         result.insert(address::SVKB);
         return result;
+    }
 
+    WRAMSnapshot WRAM::CreateSnapshot()
+    {
+        WRAMSnapshot snapshot;
+        snapshot.data = data_;
+        snapshot.wram_bank = wram_bank_;
+        return snapshot;
+    }
+
+    void WRAM::RestoreSnapshot(const WRAMSnapshot& snapshot)
+    {
+        data_ = snapshot.data;
+        wram_bank_ = snapshot.wram_bank;
     }
 } // namespace gandalf

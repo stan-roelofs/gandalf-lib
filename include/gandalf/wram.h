@@ -1,11 +1,21 @@
 #ifndef __GANDALF_WRAM_H
 #define __GANDALF_WRAM_H
 
-#include "memory.h"
 #include "constants.h"
+#include "memory.h"
+#include "serializable.h"
+#include "snapshotable.h"
 
 namespace gandalf {
-    class WRAM: public Memory::AddressHandler {
+    struct WRAMSnapshot: serialization::Serializable {
+        std::array<std::array<byte, 0x1000>, 8> data;
+        std::size_t wram_bank;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
+    };
+
+    class WRAM: public Memory::AddressHandler, public Snapshotable<WRAMSnapshot> {
     public:
         WRAM(GameboyMode mode);
         virtual ~WRAM();
@@ -16,9 +26,15 @@ namespace gandalf {
 
         void SetMode(GameboyMode mode) { mode_ = mode; }
 
+        WRAMSnapshot CreateSnapshot() override;
+        void RestoreSnapshot(const WRAMSnapshot& snapshot) override;
+
+        const std::array<std::array<byte, 0x1000>, 8>& GetData() const { return data_; }
+        const std::size_t GetCurrentBank() const { return wram_bank_; }
+
     private:
         std::array<std::array<byte, 0x1000>, 8> data_;
-        int wram_bank_;
+        std::size_t wram_bank_;
         GameboyMode mode_;
     };
 } // namespace gandalf
