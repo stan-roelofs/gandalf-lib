@@ -9,6 +9,7 @@ set(SOURCES
   src/mooneye_test.cpp
   src/resource_helper.h
   src/resource_helper.cpp
+  src/serialization_test.cpp
 )
 
 add_executable(gandalf-lib-test ${SOURCES})
