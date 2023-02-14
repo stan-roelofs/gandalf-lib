@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 {
     if (argc < 2)
     {
-        std::cout << "Usage: %s <rom file>" << argv[0] << std::endl;
+        std::cout << "Usage: " << argv[0] << " <rom file>" << std::endl;
         return EXIT_FAILURE;
     }
 
