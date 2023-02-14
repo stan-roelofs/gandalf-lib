@@ -51,3 +51,7 @@ These should be set when calling cmake to generate the build files, i.e.
 ```
 cmake .. -DGANDALF_BUILD_TESTS=ON -DGANDALF_BUILD_EXAMPLES=ON
 ```
+
+![example.png](data/example.png)
+![example2.png](data/example2.png)
+![example3.png](data/example3.png)

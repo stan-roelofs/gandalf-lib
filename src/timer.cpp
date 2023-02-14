@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include <gandalf/constants.h>
+#include <gandalf/serialization.h>
 
 namespace {
 
@@ -12,8 +13,27 @@ namespace {
 
 namespace gandalf
 {
+    void TimerSnapshot::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, internal_counter);
+        serialization::Serialize(os, tma);
+        serialization::Serialize(os, tima);
+        serialization::Serialize(os, tac);
+        serialization::Serialize(os, reload_counter);
+    }
+
+    void TimerSnapshot::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, internal_counter);
+        serialization::Deserialize(is, tma);
+        serialization::Deserialize(is, tima);
+        serialization::Deserialize(is, tac);
+        serialization::Deserialize(is, reload_counter);
+    }
+
+
     // TODO is initial value correct? verify using tests
-    Timer::Timer(Memory& memory): Memory::AddressHandler("Timer"), div_(0), tma_(0), tima_(0), tac_(0), memory_(memory), reload_counter_(0), selected_bit_(0), enabled_(false)
+    Timer::Timer(Memory& memory): Memory::AddressHandler("Timer"), internal_counter_(0), tma_(0), tima_(0), tac_(0), memory_(memory), reload_counter_(0), selected_bit_(0), enabled_(false)
     {
     }
 
@@ -21,11 +41,11 @@ namespace gandalf
 
     void Timer::OnDIVChanged(word old_div)
     {
-        if (enabled_ && (old_div & (1 << selected_bit_)) && (!(div_ & (1 << selected_bit_)))) {
+        if (enabled_ && (old_div & (1 << selected_bit_)) && (!(internal_counter_ & (1 << selected_bit_)))) {
             ++tima_;
 
             if (tima_ == 0)
-                reload_counter_ = 8;            
+                reload_counter_ = 8;
         }
     }
 
@@ -39,8 +59,8 @@ namespace gandalf
             }
         }
 
-        word prev_div = div_;
-        ++div_;
+        word prev_div = internal_counter_;
+        ++internal_counter_;
 
         OnDIVChanged(prev_div);
     }
@@ -57,10 +77,10 @@ namespace gandalf
             byte new_selected_bit = selected_bit[value & 0x3];
             bool new_enable = value & (1 << 2);
 
-            /* When writing to TAC, if the previously selected multiplexer input was 1 and the new input is 0, TIMA will increase too. 
+            /* When writing to TAC, if the previously selected multiplexer input was 1 and the new input is 0, TIMA will increase too.
              * This doesnt happen when the timer is disabled, but it also happens when disabling the timer (the same effect as writing to DIV).
             */
-            if ((new_enable && (div_ & (1 << selected_bit_)) && (!(div_ & (1 << new_selected_bit)))) || (!new_enable && div_ & (1 << selected_bit_)))
+            if ((new_enable && (internal_counter_ & (1 << selected_bit_)) && (!(internal_counter_ & (1 << new_selected_bit)))) || (!new_enable && internal_counter_ & (1 << selected_bit_)))
             {
                 ++tima_;
                 if (tima_ == 0) {
@@ -84,8 +104,8 @@ namespace gandalf
             tma_ = value;
             break;
         case DIV:
-            word old_div = div_;
-            div_ = 0;
+            word old_div = internal_counter_;
+            internal_counter_ = 0;
             OnDIVChanged(old_div);
 
             break;
@@ -106,7 +126,7 @@ namespace gandalf
         case TMA:
             return tma_;
         case DIV:
-            return div_ >> 8;
+            return internal_counter_ >> 8;
         default:
             return 0xFF;
         }
@@ -116,5 +136,28 @@ namespace gandalf
     {
         using namespace address;
         return { TAC, TIMA, TMA, DIV };
+    }
+
+    TimerSnapshot Timer::CreateSnapshot() const
+    {
+        TimerSnapshot snapshot;
+        snapshot.internal_counter = internal_counter_;
+        snapshot.tma = tma_;
+        snapshot.tima = tima_;
+        snapshot.tac = tac_;
+        snapshot.reload_counter = reload_counter_;
+        return snapshot;
+    }
+
+    void Timer::RestoreSnapshot(const TimerSnapshot& snapshot)
+    {
+        internal_counter_ = snapshot.internal_counter;
+        tma_ = snapshot.tma;
+        tima_ = snapshot.tima;
+        tac_ = snapshot.tac;
+        reload_counter_ = snapshot.reload_counter;
+
+        selected_bit_ = selected_bit[tac_ & 0x3];
+        enabled_ = tac_ & (1 << 2);
     }
 }

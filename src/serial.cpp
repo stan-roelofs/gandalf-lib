@@ -3,10 +3,21 @@
 #include <cassert>
 
 #include <gandalf/constants.h>
+#include <gandalf/serialization.h>
 
 namespace gandalf {
 
-    Serial::Serial(GameboyMode mode) : Memory::AddressHandler("Serial"), sb_(0), in_progress_(false), fast_clock_speed_(false), internal_clock_(false), mode_(mode)
+    void SerialSnapshot::Deserialize(std::istream& is) {
+        serialization::Deserialize(is, sb);
+        serialization::Deserialize(is, sc);
+    }
+
+    void SerialSnapshot::Serialize(std::ostream& os) const {
+        serialization::Serialize(os, sb);
+        serialization::Serialize(os, sc);
+    }
+
+    Serial::Serial(GameboyMode mode): Memory::AddressHandler("Serial"), sb_(0), sc_(0), mode_(mode)
     {
     }
 
@@ -21,12 +32,8 @@ namespace gandalf {
 
         if (address == address::SB)
             sb_ = value;
-        else if (address == address::SC) {
-            in_progress_ = value & 0x80;
-            if (mode_ == GameboyMode::CGB)
-                fast_clock_speed_ = value & 0x2;
-            internal_clock_ = value & 0x1;
-        }
+        else if (address == address::SC)
+            sc_ = value;
     }
 
     std::set<word> Serial::GetAddresses() const
@@ -40,18 +47,35 @@ namespace gandalf {
         if (address == address::SB)
             return sb_;
         else if (address == address::SC)
-        {
-            byte value = 0x7C;
-            if (in_progress_)
-                value |= 0x80;
-            if (mode_ != GameboyMode::CGB || fast_clock_speed_)
-                value |= 0x2;
-            if (internal_clock_)
-                value |= 1;
-            return value;
-        }
+            return sc_ | (mode_ == GameboyMode::CGB ? 0x7C : 0x7E);
 
         return 0xFF;
     }
 
+    bool Serial::GetInProgress() const
+    {
+        return (sc_ & 0x80) != 0;
+    }
+
+    bool Serial::GetFastClockSpeed() const
+    {
+        return mode_ == GameboyMode::CGB ? ((sc_ & 0b10) != 0) : false;
+    }
+
+    bool Serial::GetInternalClock() const
+    {
+        return (sc_ & 0b1) != 0;
+    }
+
+    SerialSnapshot Serial::CreateSnapshot() const {
+        SerialSnapshot snapshot;
+        snapshot.sb = sb_;
+        snapshot.sc = sc_;
+        return snapshot;
+    }
+
+    void Serial::RestoreSnapshot(const SerialSnapshot& snapshot) {
+        sb_ = snapshot.sb;
+        sc_ = snapshot.sc;
+    }
 } // namespace gandalf
