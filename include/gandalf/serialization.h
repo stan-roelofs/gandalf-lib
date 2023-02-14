@@ -15,10 +15,17 @@ namespace gandalf
         inline void Serialize(std::ostream& os, T value)
         {
             static_assert(std::is_integral<T>::value, "T must be an integral type");
-            for (size_t byte = 0; byte < sizeof(T); ++byte) {
-                os.put(static_cast<char>(value & 0xFF));
-                value >>= 8;
-            }
+
+            if constexpr (std::is_same<T, bool>::value)
+                os.put(value ? 1 : 0);
+			else
+			{
+				for (size_t i = 0; i < sizeof(T); ++i)
+				{
+					os.put(static_cast<char>(value & 0xFF));
+					value >>= 8;
+				}
+			}
         }
 
         template <typename T, std::size_t N>
@@ -40,9 +47,16 @@ namespace gandalf
         inline void Deserialize(std::istream& is, T& value)
         {
             static_assert(std::is_integral<T>::value, "T must be an integral type");
-            value = 0;
-            for (size_t byte = 0; byte < sizeof(T); ++byte) {
-                value |= static_cast<T>(is.get()) << (byte * 8);
+
+            if constexpr (std::is_same<T, bool>::value)
+            {
+				value = is.get() != 0;
+            }
+            else {
+                value = 0;
+                for (size_t byte = 0; byte < sizeof(T); ++byte) {
+                    value |= static_cast<T>(is.get()) << (byte * 8);
+                }
             }
         }
 

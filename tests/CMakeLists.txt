@@ -10,6 +10,7 @@ set(SOURCES
   src/resource_helper.h
   src/resource_helper.cpp
   src/serialization_test.cpp
+  src/timer_test.cpp
   src/wram_test.cpp
 )
 

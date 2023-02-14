@@ -152,6 +152,19 @@ TEST(Serialization, serialize_int64_max)
     EXPECT_EQ(value, std::numeric_limits<std::int64_t>::max());
 }
 
+TEST(Serialization, serialize_bool)
+{
+    std::stringstream ss;
+    Serialize(ss, true);
+    bool value;
+    Deserialize(ss, value);
+    EXPECT_EQ(value, true);
+
+    Serialize(ss, false);
+    Deserialize(ss, value);
+    EXPECT_EQ(value, false);
+}
+
 TEST(Serialization, serialize_array)
 {
     std::stringstream ss;
@@ -164,10 +177,10 @@ TEST(Serialization, serialize_array)
 
 TEST(Serialization, serialize_vector)
 {
-	std::stringstream ss;
-	std::vector<std::uint8_t> vector = { 1, 2, 3 };
-	Serialize(ss, vector);
-	std::vector<std::uint8_t> value;
-	Deserialize(ss, value);
-	EXPECT_EQ(value, vector);
+    std::stringstream ss;
+    std::vector<std::uint8_t> vector = { 1, 2, 3 };
+    Serialize(ss, vector);
+    std::vector<std::uint8_t> value;
+    Deserialize(ss, value);
+    EXPECT_EQ(value, vector);
 }

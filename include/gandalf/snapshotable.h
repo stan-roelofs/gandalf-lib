@@ -11,7 +11,7 @@ namespace gandalf
     {
     public:
         /// @returns A snapshot of the current state
-        virtual T CreateSnapshot() = 0;
+        virtual T CreateSnapshot() const = 0;
 
         /// @returns Restores the state to the given snapshot
         virtual void RestoreSnapshot(const T& snapshot) = 0;

@@ -80,7 +80,7 @@ namespace gandalf {
         return result;
     }
 
-    WRAMSnapshot WRAM::CreateSnapshot()
+    WRAMSnapshot WRAM::CreateSnapshot() const
     {
         WRAMSnapshot snapshot;
         snapshot.data = data_;

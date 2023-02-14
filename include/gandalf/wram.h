@@ -26,7 +26,7 @@ namespace gandalf {
 
         void SetMode(GameboyMode mode) { mode_ = mode; }
 
-        WRAMSnapshot CreateSnapshot() override;
+        WRAMSnapshot CreateSnapshot() const override;
         void RestoreSnapshot(const WRAMSnapshot& snapshot) override;
 
         const std::array<std::array<byte, 0x1000>, 8>& GetData() const { return data_; }
