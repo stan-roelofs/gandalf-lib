@@ -20,7 +20,6 @@ namespace gandalf {
         serialization::Deserialize(is, wram_bank);
     }
 
-
     WRAM::WRAM(GameboyMode mode): Memory::AddressHandler("WRAM"),
         wram_bank_(1),
         mode_(mode)
