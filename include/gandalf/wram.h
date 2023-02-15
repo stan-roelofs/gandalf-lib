@@ -30,7 +30,7 @@ namespace gandalf {
         void RestoreSnapshot(const WRAMSnapshot& snapshot) override;
 
         const std::array<std::array<byte, 0x1000>, 8>& GetData() const { return data_; }
-        const std::size_t GetCurrentBank() const { return wram_bank_; }
+        std::size_t GetCurrentBank() const { return wram_bank_; }
 
     private:
         std::array<std::array<byte, 0x1000>, 8> data_;
