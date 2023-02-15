@@ -184,3 +184,23 @@ TEST(Serialization, serialize_vector)
     Deserialize(ss, value);
     EXPECT_EQ(value, vector);
 }
+
+TEST(Serialization, serialize_deque)
+{
+    std::stringstream ss;
+    std::deque<std::uint8_t> deque = { 1, 2, 3 };
+    Serialize(ss, deque);
+    std::deque<std::uint8_t> value;
+    Deserialize(ss, value);
+    EXPECT_EQ(value, deque);
+}
+
+TEST(Serialization, serialize_map)
+{
+    std::stringstream ss;
+    std::map<std::uint8_t, std::uint8_t> map = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+    Serialize(ss, map);
+    std::map<std::uint8_t, std::uint8_t> value;
+    Deserialize(ss, value);
+    EXPECT_EQ(value, map);
+}
