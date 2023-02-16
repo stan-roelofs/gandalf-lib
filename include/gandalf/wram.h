@@ -3,19 +3,10 @@
 
 #include "constants.h"
 #include "memory.h"
-#include "serializable.h"
-#include "snapshotable.h"
+#include "serialization.h"
 
 namespace gandalf {
-    struct WRAMSnapshot: serialization::Serializable {
-        std::array<std::array<byte, 0x1000>, 8> data;
-        std::size_t wram_bank;
-
-        void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
-    };
-
-    class WRAM: public Memory::AddressHandler, public Snapshotable<WRAMSnapshot> {
+    class WRAM: public Memory::AddressHandler, public Serializable {
     public:
         WRAM(GameboyMode mode);
         virtual ~WRAM();
@@ -26,8 +17,8 @@ namespace gandalf {
 
         void SetMode(GameboyMode mode) { mode_ = mode; }
 
-        WRAMSnapshot CreateSnapshot() const override;
-        void RestoreSnapshot(const WRAMSnapshot& snapshot) override;
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         const std::array<std::array<byte, 0x1000>, 8>& GetData() const { return data_; }
         std::size_t GetCurrentBank() const { return wram_bank_; }

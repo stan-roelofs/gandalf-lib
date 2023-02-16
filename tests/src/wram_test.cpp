@@ -4,30 +4,6 @@
 
 using namespace gandalf;
 
-TEST(WRAM, serialize_snapshot)
-{
-    WRAMSnapshot snapshot;
-    for (auto& bank : snapshot.data)
-    {
-        for (auto& byte : bank)
-            byte = 0x42;
-    }
-    snapshot.wram_bank = 1;
-
-    std::stringstream ss;
-    snapshot.Serialize(ss);
-
-    WRAMSnapshot snapshot2;
-    snapshot2.Deserialize(ss);
-
-    EXPECT_EQ(snapshot2.wram_bank, 1);
-    for (auto& bank : snapshot2.data)
-    {
-        for (auto& byte : bank)
-            EXPECT_EQ(byte, 0x42);
-    }
-}
-
 TEST(WRAM, default_bank)
 {
     std::unique_ptr<WRAM> wram = std::make_unique<WRAM>(GameboyMode::DMG);
@@ -128,41 +104,6 @@ TEST(WRAM, cgb_write_svbk_bank_8)
     EXPECT_EQ(wram->GetCurrentBank(), 1);
 }
 
-TEST(WRAM, create_snapshot)
-{
-    std::unique_ptr<WRAM> wram = std::make_unique<WRAM>(GameboyMode::CGB);
-    for (word i = 0; i < 0x1000; ++i)
-        wram->Write(0xC000 + i, 0x42);
-
-    for (byte i = 0; i < 8; ++i) {
-        wram->Write(address::SVKB, i);
-        for (word j = 0; j < 0x1000; ++j)
-            wram->Write(0xD000 + j, 0x42);
-    }
-
-    auto snapshot = wram->CreateSnapshot();
-    EXPECT_EQ(7u, snapshot.wram_bank);
-    EXPECT_EQ(wram->GetData(), snapshot.data);
-}
-
-TEST(WRAM, restore_snapshot)
-{
-    WRAMSnapshot snapshot;
-    for (word i = 0; i < 0x1000; ++i)
-        snapshot.data[0][i] = 0x42;
-
-    for (byte i = 0; i < 8; ++i) {
-        for (word j = 0; j < 0x1000; ++j)
-            snapshot.data[i][j] = 0x42;
-    }
-
-    snapshot.wram_bank = 7;
-
-    std::unique_ptr<WRAM> wram = std::make_unique<WRAM>(GameboyMode::CGB);
-    wram->RestoreSnapshot(snapshot);
-    EXPECT_EQ(7u, wram->GetCurrentBank());
-    EXPECT_EQ(wram->GetData(), snapshot.data);
-}
 
 TEST(WRAM, get_addresses)
 {
@@ -178,4 +119,24 @@ TEST(WRAM, get_addresses)
     expected.insert(address::SVKB);
 
     EXPECT_EQ(wram->GetAddresses(), expected);
+}
+
+TEST(WRAM, serialize)
+{
+    std::unique_ptr<WRAM> wram = std::make_unique<WRAM>(GameboyMode::DMG);
+    wram->Write(0xC000, 0x42);
+    wram->Write(0xD000, 0x42);
+    wram->Write(0xE000, 0x42);
+    wram->Write(0xF000, 0x42);
+
+    std::stringstream ss;
+    wram->Serialize(ss);
+
+    std::unique_ptr<WRAM> wram2 = std::make_unique<WRAM>(GameboyMode::DMG);
+    wram2->Deserialize(ss);
+
+    EXPECT_EQ(wram->Read(0xC000), wram2->Read(0xC000));
+    EXPECT_EQ(wram->Read(0xD000), wram2->Read(0xD000));
+    EXPECT_EQ(wram->Read(0xE000), wram2->Read(0xE000));
+    EXPECT_EQ(wram->Read(0xF000), wram2->Read(0xF000));
 }

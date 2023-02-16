@@ -5,52 +5,6 @@
 
 using namespace gandalf;
 
-TEST(Serial, serialize_snapshot)
-{
-    SerialSnapshot snapshot;
-    snapshot.sb = 0x42;
-    snapshot.sc = 0x45;
-
-    std::stringstream ss;
-    snapshot.Serialize(ss);
-
-    SerialSnapshot snapshot2;
-    snapshot2.Deserialize(ss);
-
-    EXPECT_EQ(snapshot2.sb, 0x42);
-    EXPECT_EQ(snapshot2.sc, 0x45);
-}
-
-TEST(Serial, create_snapshot)
-{
-    Serial serial(GameboyMode::DMG);
-    serial.Write(address::SB, 0x42);
-    serial.Write(address::SC, 0x45);
-
-    SerialSnapshot snapshot = serial.CreateSnapshot();
-
-    EXPECT_EQ(snapshot.sb, 0x42);
-    EXPECT_EQ(snapshot.sc, 0x45);
-}
-
-TEST(Serial, restore_snapshot)
-{
-    Serial serial(GameboyMode::CGB);
-    serial.Write(address::SB, 0x42);
-    serial.Write(address::SC, 0x45);
-
-    SerialSnapshot snapshot = serial.CreateSnapshot();
-    snapshot.sb = 25;
-    snapshot.sc = 0x80 | 3;
-
-    serial.RestoreSnapshot(snapshot);
-
-    EXPECT_EQ(25, serial.GetData());
-    EXPECT_TRUE(serial.GetInternalClock());
-    EXPECT_TRUE(serial.GetFastClockSpeed());
-    EXPECT_TRUE(serial.GetInProgress());
-}
-
 TEST(Serial, default_state)
 {
     Serial serial(GameboyMode::DMG);
@@ -93,6 +47,21 @@ TEST(Serial, write_sb)
     Serial serial(GameboyMode::DMG);
     serial.Write(address::SB, 0x42);
     EXPECT_EQ(serial.Read(address::SB), 0x42);
-    EXPECT_EQ(serial.GetData(), 0x42);
+    EXPECT_EQ(serial.GetCurrentByte(), 0x42);
 }
 
+TEST(Serial, serialize)
+{
+    Serial serial(GameboyMode::DMG);
+    serial.Write(address::SB, 0x42);
+    serial.Write(address::SC, 0x80);
+
+    std::stringstream ss;
+    serial.Serialize(ss);
+
+    Serial deserialized(GameboyMode::DMG);
+    deserialized.Deserialize(ss);
+
+    EXPECT_EQ(deserialized.GetCurrentByte(), 0x42);
+    EXPECT_TRUE(deserialized.GetInProgress());
+}

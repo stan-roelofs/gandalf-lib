@@ -9,10 +9,18 @@
 #include <type_traits>
 #include <vector>
 
-#include "serializable.h"
-
 namespace gandalf
 {
+    class Serializable
+    {
+    public:
+        /// Serializes the snapshot to the given stream
+        virtual void Serialize(std::ostream& os) const = 0;
+
+        /// Deserializes the snapshot from the given stream
+        virtual void Deserialize(std::istream& is) = 0;
+    };
+
     namespace serialization
     {
         template <typename T>

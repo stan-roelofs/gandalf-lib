@@ -6,17 +6,6 @@
 #include <gandalf/serialization.h>
 
 namespace gandalf {
-
-    void SerialSnapshot::Deserialize(std::istream& is) {
-        serialization::Deserialize(is, sb);
-        serialization::Deserialize(is, sc);
-    }
-
-    void SerialSnapshot::Serialize(std::ostream& os) const {
-        serialization::Serialize(os, sb);
-        serialization::Serialize(os, sc);
-    }
-
     Serial::Serial(GameboyMode mode): Memory::AddressHandler("Serial"), sb_(0), sc_(0), mode_(mode)
     {
     }
@@ -67,15 +56,13 @@ namespace gandalf {
         return (sc_ & 0b1) != 0;
     }
 
-    SerialSnapshot Serial::CreateSnapshot() const {
-        SerialSnapshot snapshot;
-        snapshot.sb = sb_;
-        snapshot.sc = sc_;
-        return snapshot;
+    void Serial::Serialize(std::ostream& os) const {
+        serialization::Serialize(os, sb_);
+        serialization::Serialize(os, sc_);
     }
 
-    void Serial::RestoreSnapshot(const SerialSnapshot& snapshot) {
-        sb_ = snapshot.sb;
-        sc_ = snapshot.sc;
+    void Serial::Deserialize(std::istream& is) {
+        serialization::Deserialize(is, sb_);
+        serialization::Deserialize(is, sc_);
     }
 } // namespace gandalf

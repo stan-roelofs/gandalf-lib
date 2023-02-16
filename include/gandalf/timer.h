@@ -2,24 +2,10 @@
 #define __GANDALF_TIMER_H
 
 #include "memory.h"
-#include "serializable.h"
-#include "snapshotable.h"
+#include "serialization.h"
 
 namespace gandalf {
-    class TimerSnapshot: public serialization::Serializable
-    {
-    public:
-        void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
-
-        word internal_counter;
-        byte tma;
-        byte tima;
-        byte tac;
-        byte reload_counter;
-    };
-
-    class Timer: public Memory::AddressHandler, public Snapshotable<TimerSnapshot>
+    class Timer: public Memory::AddressHandler, public Serializable
     {
     public:
         Timer(Memory& memory);
@@ -38,8 +24,8 @@ namespace gandalf {
         word GetTAC() const { return tac_; }
         bool GetEnabled() const { return enabled_; }
 
-        TimerSnapshot CreateSnapshot() const override;
-        void RestoreSnapshot(const TimerSnapshot& snapshot) override;
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
     private:
         void OnDIVChanged(word old_div);

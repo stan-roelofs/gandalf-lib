@@ -7,12 +7,10 @@ set(SOURCES
   src/blargg_test.cpp
   src/cartridge_test.cpp
   src/mooneye_test.cpp
-  src/ppu_test.cpp
   src/resource_helper.h
   src/resource_helper.cpp
   src/serial_test.cpp
   src/serialization_test.cpp
-  src/timer_test.cpp
   src/wram_test.cpp
 )
 

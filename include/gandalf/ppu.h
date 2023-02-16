@@ -7,85 +7,10 @@
 
 #include "memory.h"
 #include "lcd.h"
-#include "serializable.h"
-#include "snapshotable.h"
+#include "serialization.h"
 
 namespace gandalf {
-    struct Sprite: public serialization::Serializable {
-        byte y;
-        byte x;
-        byte tile_index;
-        byte attributes;
-        byte tile_data_low;
-        byte tile_data_high;
-        byte oam_index;
-
-        bool operator<(const Sprite& other) { return x < other.x; }
-        bool operator<(int position) { return x < position; }
-        bool operator==(const Sprite& other) const {
-            return y == other.y && x == other.x && tile_index == other.tile_index && attributes == other.attributes && tile_data_low == other.tile_data_low && tile_data_high == other.tile_data_high && oam_index == other.oam_index;
-        }
-        bool operator!=(const Sprite& other) const { return !(*this == other); }
-
-        void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
-    };
-
-    struct Pixel: public serialization::Serializable {
-        Pixel(): color(0), palette(0), background_priority(false), sprite_priority(0) {}
-        Pixel(byte color, byte palette, bool background_priority, byte sprite_priority):
-            color(color), palette(palette),
-            background_priority(background_priority),
-            sprite_priority(sprite_priority) {}
-
-        bool operator==(const Pixel& other) const {
-            return color == other.color && palette == other.palette && background_priority == other.background_priority && sprite_priority == other.sprite_priority;
-        }
-        bool operator!= (const Pixel& other) const { return !(*this == other); }
-
-
-        void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
-
-        byte color; // The color index of the pixel
-        byte palette; // The palette index to use for the pixel
-        bool background_priority;
-        byte sprite_priority; // Only for CGB. The index of the sprite in OAM
-    };
-
-    struct PPUSnapshot: public serialization::Serializable {
-        void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
-
-        int line_ticks;
-        byte stat_interrupt_line;
-        byte lcd_mode;
-        std::array<std::array<byte, 0x2000>, 2> vram;
-        int current_vram_bank;
-        byte opri;
-        std::array<byte, 0xA0> oam;
-        std::map<byte, std::deque<Sprite>> fetched_sprites;
-
-        // pipeline
-        std::deque<Pixel> background_fifo;
-        std::deque<Pixel> sprite_fifo;
-        byte fetcher_state;
-        byte fetch_x;
-        byte fetch_y;
-        byte pixels_pushed;
-        byte tile_number;
-        byte tile_data_low;
-        byte tile_data_high;
-        bool sprite_in_progress;
-        Sprite current_sprite;
-        byte sprite_state;
-        int sprite_line;
-        int drop_pixels;
-        bool window_triggered;
-        byte tile_attributes;
-    };
-
-    class PPU: public Memory::AddressHandler, public Snapshotable<PPUSnapshot> {
+    class PPU: public Memory::AddressHandler, public Serializable {
     public:
         class VBlankListener
         {
@@ -107,10 +32,52 @@ namespace gandalf {
 
         void SetMode(GameboyMode mode);
 
-        PPUSnapshot CreateSnapshot() const override;
-        void RestoreSnapshot(const PPUSnapshot& snapshot) override;
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
     private:
+        struct Sprite: public Serializable {
+            byte y;
+            byte x;
+            byte tile_index;
+            byte attributes;
+            byte tile_data_low;
+            byte tile_data_high;
+            byte oam_index;
+
+            bool operator<(const Sprite& other) { return x < other.x; }
+            bool operator<(int position) { return x < position; }
+            bool operator==(const Sprite& other) const {
+                return y == other.y && x == other.x && tile_index == other.tile_index && attributes == other.attributes && tile_data_low == other.tile_data_low && tile_data_high == other.tile_data_high && oam_index == other.oam_index;
+            }
+            bool operator!=(const Sprite& other) const { return !(*this == other); }
+
+            void Serialize(std::ostream& os) const override;
+            void Deserialize(std::istream& is) override;
+        };
+
+        struct Pixel: public Serializable {
+            Pixel(): color(0), palette(0), background_priority(false), sprite_priority(0) {}
+            Pixel(byte color, byte palette, bool background_priority, byte sprite_priority):
+                color(color), palette(palette),
+                background_priority(background_priority),
+                sprite_priority(sprite_priority) {}
+
+            bool operator==(const Pixel& other) const {
+                return color == other.color && palette == other.palette && background_priority == other.background_priority && sprite_priority == other.sprite_priority;
+            }
+            bool operator!= (const Pixel& other) const { return !(*this == other); }
+
+
+            void Serialize(std::ostream& os) const override;
+            void Deserialize(std::istream& is) override;
+
+            byte color; // The color index of the pixel
+            byte palette; // The palette index to use for the pixel
+            bool background_priority;
+            byte sprite_priority; // Only for CGB. The index of the sprite in OAM
+        };
+
         void ChecLYEqualsLYC();
         void UpdateStatInterruptLine(int bit, bool value);
 
@@ -133,7 +100,7 @@ namespace gandalf {
         FetchedSprites fetched_sprites_;
 
         // this class is horrible and needs to be refactored
-        class Pipeline {
+        class Pipeline: public Serializable {
         public:
             friend class PPU;
             Pipeline(GameboyMode mode, LCD& lcd, VRAM& vram, FetchedSprites& fetched_sprites);
@@ -143,6 +110,9 @@ namespace gandalf {
             void Reset();
             bool Done() const;
             void SetMode(GameboyMode mode) { mode_ = mode; }
+
+            void Serialize(std::ostream& os) const override;
+            void Deserialize(std::istream& is) override;
         private:
             void RenderPixel();
             void TileStateMachine();

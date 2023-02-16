@@ -13,25 +13,6 @@ namespace {
 
 namespace gandalf
 {
-    void TimerSnapshot::Serialize(std::ostream& os) const
-    {
-        serialization::Serialize(os, internal_counter);
-        serialization::Serialize(os, tma);
-        serialization::Serialize(os, tima);
-        serialization::Serialize(os, tac);
-        serialization::Serialize(os, reload_counter);
-    }
-
-    void TimerSnapshot::Deserialize(std::istream& is)
-    {
-        serialization::Deserialize(is, internal_counter);
-        serialization::Deserialize(is, tma);
-        serialization::Deserialize(is, tima);
-        serialization::Deserialize(is, tac);
-        serialization::Deserialize(is, reload_counter);
-    }
-
-
     // TODO is initial value correct? verify using tests
     Timer::Timer(Memory& memory): Memory::AddressHandler("Timer"), internal_counter_(0), tma_(0), tima_(0), tac_(0), memory_(memory), reload_counter_(0), selected_bit_(0), enabled_(false)
     {
@@ -138,26 +119,21 @@ namespace gandalf
         return { TAC, TIMA, TMA, DIV };
     }
 
-    TimerSnapshot Timer::CreateSnapshot() const
+    void Timer::Serialize(std::ostream& os) const
     {
-        TimerSnapshot snapshot;
-        snapshot.internal_counter = internal_counter_;
-        snapshot.tma = tma_;
-        snapshot.tima = tima_;
-        snapshot.tac = tac_;
-        snapshot.reload_counter = reload_counter_;
-        return snapshot;
+        serialization::Serialize(os, internal_counter_);
+        serialization::Serialize(os, tma_);
+        serialization::Serialize(os, tima_);
+        serialization::Serialize(os, tac_);
+        serialization::Serialize(os, reload_counter_);
     }
 
-    void Timer::RestoreSnapshot(const TimerSnapshot& snapshot)
+    void Timer::Deserialize(std::istream& is)
     {
-        internal_counter_ = snapshot.internal_counter;
-        tma_ = snapshot.tma;
-        tima_ = snapshot.tima;
-        tac_ = snapshot.tac;
-        reload_counter_ = snapshot.reload_counter;
-
-        selected_bit_ = selected_bit[tac_ & 0x3];
-        enabled_ = tac_ & (1 << 2);
+        serialization::Deserialize(is, internal_counter_);
+        serialization::Deserialize(is, tma_);
+        serialization::Deserialize(is, tima_);
+        serialization::Deserialize(is, tac_);
+        serialization::Deserialize(is, reload_counter_);
     }
 }

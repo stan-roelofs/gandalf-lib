@@ -24,102 +24,6 @@ namespace {
 }
 
 namespace gandalf {
-
-    void Sprite::Serialize(std::ostream& os) const
-    {
-        serialization::Serialize(os, y);
-        serialization::Serialize(os, x);
-        serialization::Serialize(os, tile_index);
-        serialization::Serialize(os, attributes);
-        serialization::Serialize(os, tile_data_low);
-        serialization::Serialize(os, tile_data_high);
-        serialization::Serialize(os, oam_index);
-    }
-
-    void Sprite::Deserialize(std::istream& is)
-    {
-        serialization::Deserialize(is, y);
-        serialization::Deserialize(is, x);
-        serialization::Deserialize(is, tile_index);
-        serialization::Deserialize(is, attributes);
-        serialization::Deserialize(is, tile_data_low);
-        serialization::Deserialize(is, tile_data_high);
-        serialization::Deserialize(is, oam_index);
-    }
-
-    void Pixel::Serialize(std::ostream& os) const
-    {
-        serialization::Serialize(os, color);
-        serialization::Serialize(os, palette);
-        serialization::Serialize(os, background_priority);
-        serialization::Serialize(os, sprite_priority);
-    }
-
-    void Pixel::Deserialize(std::istream& is)
-    {
-        serialization::Deserialize(is, color);
-        serialization::Deserialize(is, palette);
-        serialization::Deserialize(is, background_priority);
-        serialization::Deserialize(is, sprite_priority);
-    }
-
-    void PPUSnapshot::Serialize(std::ostream& os) const
-    {
-        serialization::Serialize(os, line_ticks);
-        serialization::Serialize(os, stat_interrupt_line);
-        serialization::Serialize(os, lcd_mode);
-        serialization::Serialize(os, vram);
-        serialization::Serialize(os, current_vram_bank);
-        serialization::Serialize(os, opri);
-        serialization::Serialize(os, oam);
-        serialization::Serialize(os, fetched_sprites);
-        serialization::Serialize(os, background_fifo);
-        serialization::Serialize(os, sprite_fifo);
-        serialization::Serialize(os, fetcher_state);
-        serialization::Serialize(os, fetch_x);
-        serialization::Serialize(os, fetch_y);
-        serialization::Serialize(os, pixels_pushed);
-        serialization::Serialize(os, tile_number);
-        serialization::Serialize(os, tile_data_low);
-        serialization::Serialize(os, tile_data_high);
-        serialization::Serialize(os, sprite_in_progress);
-        serialization::Serialize(os, current_sprite);
-        serialization::Serialize(os, sprite_state);
-        serialization::Serialize(os, sprite_line);
-        serialization::Serialize(os, drop_pixels);
-        serialization::Serialize(os, window_triggered);
-        serialization::Serialize(os, tile_attributes);
-    }
-
-    void PPUSnapshot::Deserialize(std::istream& is)
-    {
-        serialization::Deserialize(is, line_ticks);
-        serialization::Deserialize(is, stat_interrupt_line);
-        serialization::Deserialize(is, lcd_mode);
-        serialization::Deserialize(is, vram);
-        serialization::Deserialize(is, current_vram_bank);
-        serialization::Deserialize(is, opri);
-        serialization::Deserialize(is, oam);
-        serialization::Deserialize(is, fetched_sprites);
-        serialization::Deserialize(is, background_fifo);
-        serialization::Deserialize(is, sprite_fifo);
-        serialization::Deserialize(is, fetcher_state);
-        serialization::Deserialize(is, fetch_x);
-        serialization::Deserialize(is, fetch_y);
-        serialization::Deserialize(is, pixels_pushed);
-        serialization::Deserialize(is, tile_number);
-        serialization::Deserialize(is, tile_data_low);
-        serialization::Deserialize(is, tile_data_high);
-        serialization::Deserialize(is, sprite_in_progress);
-        serialization::Deserialize(is, current_sprite);
-        serialization::Deserialize(is, sprite_state);
-        serialization::Deserialize(is, sprite_line);
-        serialization::Deserialize(is, drop_pixels);
-        serialization::Deserialize(is, window_triggered);
-        serialization::Deserialize(is, tile_attributes);
-    }
-
-
     PPU::PPU(GameboyMode mode, Memory& memory, LCD& lcd): Memory::AddressHandler("PPU"),
         memory_(memory),
         lcd_(lcd),
@@ -323,62 +227,68 @@ namespace gandalf {
         return vram_.at(bank).at(address);
     }
 
-    PPUSnapshot PPU::CreateSnapshot() const
+    void PPU::Serialize(std::ostream& os) const
     {
-        PPUSnapshot snapshot;
-        snapshot.line_ticks = line_ticks_;
-        snapshot.stat_interrupt_line = stat_interrupt_line_;
-        snapshot.lcd_mode = static_cast<byte>(lcd_mode_);
-        snapshot.vram = vram_;
-        snapshot.current_vram_bank = current_vram_bank_;
-        snapshot.opri = opri_;
-        snapshot.oam = oam_;
-        snapshot.fetched_sprites = fetched_sprites_;
-        snapshot.background_fifo = pipeline_.background_fifo_;
-        snapshot.sprite_fifo = pipeline_.sprite_fifo_;
-        snapshot.fetcher_state = static_cast<byte>(pipeline_.fetcher_state_);
-        snapshot.fetch_x = pipeline_.fetch_x_;
-        snapshot.fetch_y = pipeline_.fetch_y_;
-        snapshot.pixels_pushed = pipeline_.pixels_pushed_;
-        snapshot.tile_number = pipeline_.tile_number_;
-        snapshot.tile_data_low = pipeline_.tile_data_low_;
-        snapshot.tile_data_high = pipeline_.tile_data_high_;
-        snapshot.sprite_in_progress = pipeline_.sprite_in_progress_;
-        snapshot.current_sprite = pipeline_.current_sprite_;
-        snapshot.sprite_state = static_cast<byte>(pipeline_.sprite_state_);
-        snapshot.sprite_line = pipeline_.sprite_line_;
-        snapshot.drop_pixels = pipeline_.drop_pixels_;
-        snapshot.window_triggered = pipeline_.window_triggered_;
-        snapshot.tile_attributes = pipeline_.tile_attributes_;
-        return snapshot;
+        serialization::Serialize(os, line_ticks_);
+        serialization::Serialize(os, stat_interrupt_line_);
+        serialization::Serialize(os, static_cast<byte>(lcd_mode_));
+        serialization::Serialize(os, static_cast<byte>(mode_));
+        serialization::Serialize(os, vram_);
+        serialization::Serialize(os, current_vram_bank_);
+        serialization::Serialize(os, opri_);
+        serialization::Serialize(os, oam_);
+        serialization::Serialize(os, fetched_sprites_);
     }
 
-    void PPU::RestoreSnapshot(const PPUSnapshot& snapshot)
+    void PPU::Deserialize(std::istream& is)
     {
-        line_ticks_ = snapshot.line_ticks;
-        stat_interrupt_line_ = snapshot.stat_interrupt_line;
-        lcd_mode_ = static_cast<LCD::Mode>(snapshot.lcd_mode);
-        vram_ = snapshot.vram;
-        current_vram_bank_ = snapshot.current_vram_bank;
-        opri_ = snapshot.opri;
-        oam_ = snapshot.oam;
-        fetched_sprites_ = snapshot.fetched_sprites;
-        pipeline_.background_fifo_ = snapshot.background_fifo;
-        pipeline_.sprite_fifo_ = snapshot.sprite_fifo;
-        pipeline_.fetcher_state_ = static_cast<PPU::Pipeline::FetcherState>(snapshot.fetcher_state);
-        pipeline_.fetch_x_ = snapshot.fetch_x;
-        pipeline_.fetch_y_ = snapshot.fetch_y;
-        pipeline_.pixels_pushed_ = snapshot.pixels_pushed;
-        pipeline_.tile_number_ = snapshot.tile_number;
-        pipeline_.tile_data_low_ = snapshot.tile_data_low;
-        pipeline_.tile_data_high_ = snapshot.tile_data_high;
-        pipeline_.sprite_in_progress_ = snapshot.sprite_in_progress;
-        pipeline_.current_sprite_ = snapshot.current_sprite;
-        pipeline_.sprite_state_ = static_cast<PPU::Pipeline::SpriteState>(snapshot.sprite_state);
-        pipeline_.sprite_line_ = snapshot.sprite_line;
-        pipeline_.drop_pixels_ = snapshot.drop_pixels;
-        pipeline_.window_triggered_ = snapshot.window_triggered;
-        pipeline_.tile_attributes_ = snapshot.tile_attributes;
+        serialization::Deserialize(is, line_ticks_);
+        serialization::Deserialize(is, stat_interrupt_line_);
+        serialization::Deserialize(is, reinterpret_cast<byte&>(lcd_mode_));
+        serialization::Deserialize(is, reinterpret_cast<byte&>(mode_));
+        serialization::Deserialize(is, vram_);
+        serialization::Deserialize(is, current_vram_bank_);
+        serialization::Deserialize(is, opri_);
+        serialization::Deserialize(is, oam_);
+        serialization::Deserialize(is, fetched_sprites_);
+    }
+
+    void PPU::Sprite::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, y);
+        serialization::Serialize(os, x);
+        serialization::Serialize(os, tile_index);
+        serialization::Serialize(os, attributes);
+        serialization::Serialize(os, tile_data_low);
+        serialization::Serialize(os, tile_data_high);
+        serialization::Serialize(os, oam_index);
+    }
+
+    void PPU::Sprite::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, y);
+        serialization::Deserialize(is, x);
+        serialization::Deserialize(is, tile_index);
+        serialization::Deserialize(is, attributes);
+        serialization::Deserialize(is, tile_data_low);
+        serialization::Deserialize(is, tile_data_high);
+        serialization::Deserialize(is, oam_index);
+    }
+
+    void PPU::Pixel::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, color);
+        serialization::Serialize(os, palette);
+        serialization::Serialize(os, background_priority);
+        serialization::Serialize(os, sprite_priority);
+    }
+
+    void PPU::Pixel::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, color);
+        serialization::Deserialize(is, palette);
+        serialization::Deserialize(is, background_priority);
+        serialization::Deserialize(is, sprite_priority);
     }
 
     PPU::Pipeline::Pipeline(GameboyMode mode, LCD& lcd, VRAM& vram, FetchedSprites& fetched_sprites):
@@ -409,6 +319,54 @@ namespace gandalf {
         sprite_fifo_.clear();
         drop_pixels_ = lcd_.GetSCX() % 8;
         window_triggered_ = false;
+    }
+
+    void PPU::Pipeline::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, background_fifo_);
+        serialization::Serialize(os, sprite_fifo_);
+        serialization::Serialize(os, static_cast<byte>(fetcher_state_));
+        serialization::Serialize(os, fetch_x_);
+        serialization::Serialize(os, fetch_y_);
+        serialization::Serialize(os, pixels_pushed_);
+        serialization::Serialize(os, tile_number_);
+        serialization::Serialize(os, tile_data_low_);
+        serialization::Serialize(os, tile_data_high_);
+        serialization::Serialize(os, sprite_in_progress_);
+        serialization::Serialize(os, current_sprite_);
+        serialization::Serialize(os, static_cast<byte>(sprite_state_));
+        serialization::Serialize(os, sprite_line_);
+        serialization::Serialize(os, drop_pixels_);
+        serialization::Serialize(os, window_triggered_);
+        serialization::Serialize(os, static_cast<byte>(mode_));
+        serialization::Serialize(os, tile_attributes_);
+    }
+
+    void PPU::Pipeline::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, background_fifo_);
+        serialization::Deserialize(is, sprite_fifo_);
+        byte fetcher_state;
+        serialization::Deserialize(is, fetcher_state);
+        fetcher_state_ = static_cast<FetcherState>(fetcher_state);
+        serialization::Deserialize(is, fetch_x_);
+        serialization::Deserialize(is, fetch_y_);
+        serialization::Deserialize(is, pixels_pushed_);
+        serialization::Deserialize(is, tile_number_);
+        serialization::Deserialize(is, tile_data_low_);
+        serialization::Deserialize(is, tile_data_high_);
+        serialization::Deserialize(is, sprite_in_progress_);
+        serialization::Deserialize(is, current_sprite_);
+        byte sprite_state;
+        serialization::Deserialize(is, sprite_state);
+        sprite_state_ = static_cast<SpriteState>(sprite_state);
+        serialization::Deserialize(is, sprite_line_);
+        serialization::Deserialize(is, drop_pixels_);
+        serialization::Deserialize(is, window_triggered_);
+        byte mode;
+        serialization::Deserialize(is, mode);
+        mode_ = static_cast<GameboyMode>(mode);
+        serialization::Deserialize(is, tile_attributes_);
     }
 
     bool PPU::Pipeline::Done() const
@@ -609,7 +567,7 @@ namespace gandalf {
                 byte color = color_bit_0 | (color_bit_1 << 1);
                 byte palette = (mode_ == GameboyMode::CGB) ? tile_attributes_ & 0x7 : 0;
 
-                background_fifo_.push_back( Pixel(color, palette, false, 0 ));
+                background_fifo_.push_back(Pixel(color, palette, false, 0));
             }
             fetch_x_ = (fetch_x_ + 1) & 0x1F;
             fetcher_state_ = FetcherState::FetchTileSleep;

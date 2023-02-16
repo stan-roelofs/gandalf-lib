@@ -25,8 +25,7 @@ set(HEADERS
     include/gandalf/model.h
     include/gandalf/ppu.h
     include/gandalf/serial.h
-    include/gandalf/serializable.h
-    include/gandalf/snapshotable.h
+    include/gandalf/serialization.h
     include/gandalf/sound/frame_sequencer.h
     include/gandalf/sound/sound_channel.h
     include/gandalf/timer.h
