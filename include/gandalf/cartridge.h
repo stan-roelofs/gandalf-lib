@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
-#include <gandalf/memory.h>
-#include <gandalf/types.h>
-
 #include "mbc.h"
+#include "memory.h"
+#include "serialization.h"
+#include "types.h"
 
 namespace gandalf {
-  class Cartridge: public Memory::AddressHandler {
+  class Cartridge: public Memory::AddressHandler, public Serializable {
   public:
     Cartridge();
     virtual ~Cartridge();
@@ -23,21 +23,21 @@ namespace gandalf {
       NotSupported
     };
 
-    struct Header {
-      byte logo[0x30];            // 0x104-0x133 - Logo
-      byte title[0x10];           // 0x134-0x143 - Title
-      byte manufacturer_code[4];  // 0x13F-0x142 - Manufacturer code
-      byte cgb_flag;              // 0x143 - CGB flag
-      byte new_licensee_code[2];  // 0x144-0x145 - New licensee code
-      byte sgb_flag;              // 0x146 - SGB flag
-      byte cartridge_type;        // 0x147 - Cartridge type
-      byte rom_size;              // 0x148 - ROM size
-      byte ram_size;              // 0x149 - RAM size
-      byte destination_code;      // 0x14A - Destination code
-      byte old_licensee_code;     // 0x14B - Old licensee code
-      byte mask_rom_version;      // 0x14C - Mask ROM version number
-      byte header_checksum;       // 0x14D - Header checksum
-      byte global_checksum[2];    // 0x14E-0x14F - Global checksum
+    struct Header: public Serializable {
+      std::array<byte, 0x30> logo;            // 0x104-0x133 - Logo
+      std::array<byte, 0x10> title;           // 0x134-0x143 - Title
+      std::array<byte, 4> manufacturer_code;  // 0x13F-0x142 - Manufacturer code
+      byte cgb_flag;                          // 0x143 - CGB flag
+      std::array<byte, 2> new_licensee_code;  // 0x144-0x145 - New licensee code
+      byte sgb_flag;                          // 0x146 - SGB flag
+      byte cartridge_type;                    // 0x147 - Cartridge type
+      byte rom_size;                          // 0x148 - ROM size
+      byte ram_size;                          // 0x149 - RAM size
+      byte destination_code;                  // 0x14A - Destination code
+      byte old_licensee_code;                 // 0x14B - Old licensee code
+      byte mask_rom_version;                  // 0x14C - Mask ROM version number
+      byte header_checksum;                   // 0x14D - Header checksum
+      std::array<byte, 2> global_checksum;    // 0x14E-0x14F - Global checksum
 
       CGBFunctionality GetCGBFlag() const;
 
@@ -50,6 +50,9 @@ namespace gandalf {
       std::string GetRAMSizeString() const;
       std::string GetCGBFlagString() const;
       std::string GetSGBFlagString() const;
+
+      void Serialize(std::ostream& os) const override;
+      void Deserialize(std::istream& is) override;
     };
 
     /**
@@ -72,6 +75,9 @@ namespace gandalf {
     void Write(word address, byte value) override;
     byte Read(word address) const override;
     std::set<word> GetAddresses() const override;
+
+    void Serialize(std::ostream& os) const override;
+    void Deserialize(std::istream& is) override;
 
   private:
     std::shared_ptr<const Header> header_;

@@ -12,7 +12,7 @@
 #include "hdma.h"
 
 namespace gandalf {
-    class IO {
+    class IO: public Serializable {
     public:
         IO(GameboyMode mode, Memory& memory);
         ~IO();
@@ -27,6 +27,9 @@ namespace gandalf {
         const APU& GetAPU() const { return apu_; }
         APU& GetAPU() { return apu_; }
         const Timer& GetTimer() const { return timer_; }
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         void SetMode(GameboyMode mode);
 

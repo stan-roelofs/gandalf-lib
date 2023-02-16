@@ -6,7 +6,7 @@
 
 namespace gandalf
 {
-    LengthCounter::LengthCounter(int full_length, bool& channel_enabled) :
+    LengthCounter::LengthCounter(int full_length, bool& channel_enabled):
         counter_enabled_(false),
         channel_enabled_(channel_enabled),
         remaining_length_(0),
@@ -16,6 +16,20 @@ namespace gandalf
     }
 
     LengthCounter::~LengthCounter() = default;
+
+    void LengthCounter::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, counter_enabled_);
+        serialization::Serialize(os, remaining_length_);
+        serialization::Serialize(os, full_length_);
+    }
+
+    void LengthCounter::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, counter_enabled_);
+        serialization::Deserialize(is, remaining_length_);
+        serialization::Deserialize(is, full_length_);
+    }
 
     void LengthCounter::OnFrameSequencerStep()
     {

@@ -742,6 +742,34 @@ namespace gandalf {
     return { address::IE, address::IF, address::KEY1 };
   }
 
+  void CPU::Serialize(std::ostream& os) const
+  {
+    registers_.Serialize(os);
+    serialization::Serialize(os, opcode_);
+    serialization::Serialize(os, halt_);
+    serialization::Serialize(os, stop_);
+    serialization::Serialize(os, halt_bug_);
+    serialization::Serialize(os, ei_pending_);
+    serialization::Serialize(os, double_speed_);
+    serialization::Serialize(os, prepare_speed_switch_);
+    serialization::Serialize(os, static_cast<byte>(gameboy_mode_));
+  }
+
+  void CPU::Deserialize(std::istream& is)
+  {
+    registers_.Deserialize(is);
+    serialization::Deserialize(is, opcode_);
+    serialization::Deserialize(is, halt_);
+    serialization::Deserialize(is, stop_);
+    serialization::Deserialize(is, halt_bug_);
+    serialization::Deserialize(is, ei_pending_);
+    serialization::Deserialize(is, double_speed_);
+    serialization::Deserialize(is, prepare_speed_switch_);
+    byte mode;
+    serialization::Deserialize(is, mode);
+	gameboy_mode_ = static_cast<GameboyMode>(mode);
+  }
+
   void CPU::Tick() {
     // Handle interrupts if two corresponding bits in IE and IF are set
     if (registers_.interrupt_enable & registers_.interrupt_flags & 0x1F) {

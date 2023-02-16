@@ -45,6 +45,61 @@ namespace gandalf {
             memory_.Unregister(cartridge_);
     }
 
+    bool Gameboy::SaveState(std::ostream& os)
+    {
+        try
+        {
+            serialization::Serialize(os, static_cast<byte>(mode_));
+            serialization::Serialize(os, static_cast<byte>(model_));
+            io_.Serialize(os);
+            cpu_.Serialize(os);
+            wram_.Serialize(os);
+            hram_.Serialize(os);
+            cartridge_.Serialize(os);
+            serialization::Serialize(os, boot_rom_handler_ != nullptr);
+            if (boot_rom_handler_)
+                boot_rom_handler_->Serialize(os);
+        }
+        catch (const std::exception&)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Gameboy::LoadState(std::istream& is)
+    {
+        try
+        {
+            byte mode, model;
+            serialization::Deserialize(is, mode);
+            serialization::Deserialize(is, model);
+            mode_ = static_cast<GameboyMode>(mode);
+            model_ = static_cast<Model>(model);
+            io_.Deserialize(is);
+            cpu_.Deserialize(is);
+            wram_.Deserialize(is);
+            hram_.Deserialize(is);
+            cartridge_.Deserialize(is);
+            bool in_boot_rom;
+            serialization::Deserialize(is, in_boot_rom);
+            if (in_boot_rom)
+            {
+                const auto boot_rom_bytes = GetBootROM(model_);
+                boot_rom_handler_ = std::make_unique<BootROMHandler>(*this, boot_rom_bytes);
+                memory_.Register(*boot_rom_handler_);
+                boot_rom_handler_->Deserialize(is);
+            }
+        }
+        catch (const std::exception&)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     bool Gameboy::LoadROM(const ROM& rom)
     {
         if (!cartridge_.Load(rom))

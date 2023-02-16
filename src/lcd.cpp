@@ -38,7 +38,7 @@ namespace gandalf
     byte LCD::Read(word address) const
     {
         using namespace address;
-        
+
         assert(address == LCDC || address == STAT || address == SCY ||
             address == SCX || address == LY || address == LYC ||
             address == BGP || address == OBP0 || address == OBP1 || address == WY ||
@@ -84,7 +84,7 @@ namespace gandalf
     void LCD::Write(word address, byte value)
     {
         using namespace address;
-        
+
         assert(address == LCDC || address == STAT || address == SCY ||
             address == SCX || address == LY || address == LYC ||
             address == BGP || address == OBP0 || address == OBP1 || address == WY ||
@@ -174,6 +174,50 @@ namespace gandalf
     {
         using namespace address;
         return { LCDC, STAT, SCY, SCX, LY, LYC, WY, WX, BGP, OBP0, OBP1, BCPS, BCPD, OCPS, OCPD };
+    }
+
+    void LCD::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, video_buffer_);
+        serialization::Serialize(os, lcdc_);
+        serialization::Serialize(os, ly_);
+        serialization::Serialize(os, lyc_);
+        serialization::Serialize(os, stat_);
+        serialization::Serialize(os, scy_);
+        serialization::Serialize(os, scx_);
+        serialization::Serialize(os, wy_);
+        serialization::Serialize(os, wx_);
+        serialization::Serialize(os, bgp_);
+        serialization::Serialize(os, obp0_);
+        serialization::Serialize(os, obp1_);
+        serialization::Serialize(os, bcps_);
+        serialization::Serialize(os, ocps_);
+        serialization::Serialize(os, bcpd_);
+        serialization::Serialize(os, ocpd_);
+        serialization::Serialize(os, static_cast<byte>(mode_));
+    }
+
+    void LCD::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, video_buffer_);
+        serialization::Deserialize(is, lcdc_);
+        serialization::Deserialize(is, ly_);
+        serialization::Deserialize(is, lyc_);
+        serialization::Deserialize(is, stat_);
+        serialization::Deserialize(is, scy_);
+        serialization::Deserialize(is, scx_);
+        serialization::Deserialize(is, wy_);
+        serialization::Deserialize(is, wx_);
+        serialization::Deserialize(is, bgp_);
+        serialization::Deserialize(is, obp0_);
+        serialization::Deserialize(is, obp1_);
+        serialization::Deserialize(is, bcps_);
+        serialization::Deserialize(is, ocps_);
+        serialization::Deserialize(is, bcpd_);
+        serialization::Deserialize(is, ocpd_);
+        byte mode;
+        serialization::Deserialize(is, mode);
+        mode_ = static_cast<GameboyMode>(mode);
     }
 
     LCD::Mode LCD::GetMode() const

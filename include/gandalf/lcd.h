@@ -3,11 +3,12 @@
 
 #include <array>
 
-#include "memory.h"
 #include "constants.h"
+#include "memory.h"
+#include "serialization.h"
 
 namespace gandalf {
-    class LCD: public Memory::AddressHandler {
+    class LCD: public Memory::AddressHandler, public Serializable {
     public:
         using ABGR1555 = word;
         using VideoBuffer = std::array<ABGR1555, ScreenWidth* ScreenHeight>;
@@ -20,6 +21,9 @@ namespace gandalf {
         byte Read(word address) const override;
         void Write(word address, byte value) override;
         std::set<word> GetAddresses() const override;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         byte GetLCDControl() const { return lcdc_; }
         byte GetLCDStatus() const { return stat_; }

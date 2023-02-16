@@ -1,10 +1,11 @@
 #ifndef __GANDALF_CPU_REGISTERS_H
 #define __GANDALF_CPU_REGISTERS_H
 
-#include  "types.h"
+#include "serialization.h"
+#include "types.h"
 
 namespace gandalf {
-  class Registers {
+  class Registers: public Serializable {
   public:
     Registers():
       af_combined(0),
@@ -63,6 +64,30 @@ namespace gandalf {
     const byte& l() const { return hl_bytes[0]; }
     word& hl() { return hl_combined; }
     const word& hl() const { return hl_combined; }
+
+    void Serialize(std::ostream& os) const override {
+      serialization::Serialize(os, af_combined);
+      serialization::Serialize(os, bc_combined);
+      serialization::Serialize(os, de_combined);
+      serialization::Serialize(os, hl_combined);
+      serialization::Serialize(os, stack_pointer);
+      serialization::Serialize(os, program_counter);
+      serialization::Serialize(os, interrupt_enable);
+      serialization::Serialize(os, interrupt_flags);
+      serialization::Serialize(os, interrupt_master_enable);
+    }
+
+    void Deserialize(std::istream& is) override {
+      serialization::Deserialize(is, af_combined);
+      serialization::Deserialize(is, bc_combined);
+      serialization::Deserialize(is, de_combined);
+      serialization::Deserialize(is, hl_combined);
+      serialization::Deserialize(is, stack_pointer);
+      serialization::Deserialize(is, program_counter);
+      serialization::Deserialize(is, interrupt_enable);
+      serialization::Deserialize(is, interrupt_flags);
+      serialization::Deserialize(is, interrupt_master_enable);
+    }
 
     word stack_pointer;
     word program_counter;

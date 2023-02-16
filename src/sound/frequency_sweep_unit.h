@@ -10,14 +10,17 @@ namespace gandalf
      * A frequency sweep unit is used to change the frequency of a channel
      * over time.
      */
-    class FrequencySweepUnit : public FrameSequencer::Listener
+    class FrequencySweepUnit: public FrameSequencer::Listener, public Serializable
     {
     public:
         FrequencySweepUnit(byte& frequency_low, byte& frequency_high, bool& sound_channel_enabled);
         virtual ~FrequencySweepUnit();
 
-        virtual void OnFrameSequencerStep() override;
-        virtual std::array<bool, 8> GetSteps() const override;
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
+
+        void OnFrameSequencerStep() override;
+        std::array<bool, 8> GetSteps() const override;
 
         void Trigger();
 

@@ -5,7 +5,7 @@
 #include <gandalf/util.h>
 
 namespace gandalf {
-    MBC1::MBC1(const ROM& rom, std::size_t rom_banks, std::size_t ram_banks, bool has_battery) : MBC(rom, rom_banks, ram_banks),
+    MBC1::MBC1(const ROM& rom, std::size_t rom_banks, std::size_t ram_banks, bool has_battery): MBC(rom, rom_banks, ram_banks),
         ram_enabled_(false), rom_bank_number_(1), ram_bank_number_(0), advanced_banking_mode_(false), has_battery_(has_battery)
     {
         assert(rom_banks % 2 == 0 && rom_banks <= 128);
@@ -51,7 +51,7 @@ namespace gandalf {
             ram_enabled_ = (value & 0x0F) == 0x0A;
         else if (address < 0x4000) {
             rom_bank_number_ = (value & 0x1F);
-            /* MBC1 doesn’t allow the BANK1 register to contain zero (bit pattern 0b00000), so the initial value at reset
+            /* MBC1 doesnï¿½t allow the BANK1 register to contain zero (bit pattern 0b00000), so the initial value at reset
              * is 0b00001 and attempting to write 0b00000 will write 0b00001 instead. */
             if (rom_bank_number_ == 0)
                 rom_bank_number_ = 1;
@@ -70,5 +70,25 @@ namespace gandalf {
 
             ram_[bank_number][address - 0xA000] = value;
         }
+    }
+
+    void MBC1::Serialize(std::ostream& os) const {
+        MBC::Serialize(os);
+
+        serialization::Serialize(os, ram_enabled_);
+        serialization::Serialize(os, rom_bank_number_);
+        serialization::Serialize(os, ram_bank_number_);
+        serialization::Serialize(os, advanced_banking_mode_);
+        serialization::Serialize(os, has_battery_);
+    }
+
+    void MBC1::Deserialize(std::istream& is) {
+        MBC::Deserialize(is);
+
+        serialization::Deserialize(is, ram_enabled_);
+        serialization::Deserialize(is, rom_bank_number_);
+        serialization::Deserialize(is, ram_bank_number_);
+        serialization::Deserialize(is, advanced_banking_mode_);
+        serialization::Deserialize(is, has_battery_);
     }
 }

@@ -9,7 +9,7 @@ namespace
 
 namespace gandalf
 {
-    NoiseChannel::NoiseChannel(FrameSequencer& frame_sequencer) : SoundChannel(),
+    NoiseChannel::NoiseChannel(FrameSequencer& frame_sequencer): SoundChannel(),
         length_counter_(std::make_shared<LengthCounter>((byte)64, channel_enabled_)),
         volume_envelope_(std::make_shared<VolumeEnvelope>(channel_enabled_)),
         last_output_(0),
@@ -24,6 +24,32 @@ namespace gandalf
     }
 
     NoiseChannel::~NoiseChannel() = default;
+
+    void NoiseChannel::Serialize(std::ostream& os) const
+    {
+        SoundChannel::Serialize(os);
+        length_counter_->Serialize(os);
+        volume_envelope_->Serialize(os);
+        serialization::Serialize(os, last_output_);
+        serialization::Serialize(os, timer_);
+        serialization::Serialize(os, lfsr_);
+        serialization::Serialize(os, clock_shift_);
+        serialization::Serialize(os, width_mode_bit_);
+        serialization::Serialize(os, divisor_code_);
+    }
+
+    void NoiseChannel::Deserialize(std::istream& is)
+    {
+        SoundChannel::Deserialize(is);
+        length_counter_->Deserialize(is);
+        volume_envelope_->Deserialize(is);
+        serialization::Deserialize(is, last_output_);
+        serialization::Deserialize(is, timer_);
+        serialization::Deserialize(is, lfsr_);
+        serialization::Deserialize(is, clock_shift_);
+        serialization::Deserialize(is, width_mode_bit_);
+        serialization::Deserialize(is, divisor_code_);
+    }
 
     byte NoiseChannel::GetRegister(int index) const
     {

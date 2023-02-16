@@ -9,11 +9,14 @@
 
 namespace gandalf
 {
-    class SquareWaveChannel : public SoundChannel
+    class SquareWaveChannel: public SoundChannel
     {
     public:
         SquareWaveChannel(FrameSequencer& frame_sequencer, bool has_frequency_sweep_unit);
         ~SquareWaveChannel();
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         byte GetRegister(int index) const override;
         void SetRegister(int index, byte value) override;

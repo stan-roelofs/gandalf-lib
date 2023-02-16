@@ -1,13 +1,13 @@
 #ifndef __GANDALF_HDMA_H
 #define __GANDALF_HDMA_H
 
-#include "memory.h"
-
 #include "lcd.h"
+#include "memory.h"
+#include "serialization.h"
 
 namespace gandalf
 {
-    class HDMA : public Memory::AddressHandler
+    class HDMA: public Memory::AddressHandler, public Serializable
     {
     public:
         HDMA(GameboyMode mode, Memory& memory, const LCD& lcd);
@@ -18,6 +18,9 @@ namespace gandalf
         byte Read(word address) const override;
         void Write(word address, byte value) override;
         std::set<word> GetAddresses() const override;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         word GetRemainingGDMACycles() const;
 

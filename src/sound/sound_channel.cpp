@@ -2,7 +2,7 @@
 
 namespace gandalf
 {
-    SoundChannel::SoundChannel() : channel_enabled_(false)
+    SoundChannel::SoundChannel(): channel_enabled_(false)
     {
     }
 
@@ -11,5 +11,15 @@ namespace gandalf
     bool SoundChannel::GetEnabled() const
     {
         return channel_enabled_;
+    }
+
+    void SoundChannel::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, channel_enabled_);
+    }
+
+    void SoundChannel::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, channel_enabled_);
     }
 } // namespace gandalf

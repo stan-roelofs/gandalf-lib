@@ -8,7 +8,7 @@ namespace {
 
 namespace gandalf
 {
-    WaveChannel::WaveChannel(FrameSequencer& frame_sequencer, const std::array<byte, 0x20>& wave_ram) : SoundChannel(),
+    WaveChannel::WaveChannel(FrameSequencer& frame_sequencer, const std::array<byte, 0x20>& wave_ram): SoundChannel(),
         wave_ram_(wave_ram),
         length_counter_(std::make_shared<LengthCounter>(256, channel_enabled_)),
         dac_enabled_(false),
@@ -22,6 +22,26 @@ namespace gandalf
     }
 
     WaveChannel::~WaveChannel() = default;
+
+    void WaveChannel::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, dac_enabled_);
+        serialization::Serialize(os, volume_code_);
+        serialization::Serialize(os, timer_);
+        serialization::Serialize(os, frequency_register_);
+        serialization::Serialize(os, position_counter_);
+        serialization::Serialize(os, sample_buffer_);
+    }
+
+    void WaveChannel::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, dac_enabled_);
+        serialization::Deserialize(is, volume_code_);
+        serialization::Deserialize(is, timer_);
+        serialization::Deserialize(is, frequency_register_);
+        serialization::Deserialize(is, position_counter_);
+        serialization::Deserialize(is, sample_buffer_);
+    }
 
     byte WaveChannel::GetRegister(int index) const
     {

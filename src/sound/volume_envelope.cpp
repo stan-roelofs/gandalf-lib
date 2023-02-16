@@ -2,7 +2,7 @@
 
 namespace gandalf
 {
-    VolumeEnvelope::VolumeEnvelope(bool& sound_channel_enabled) :
+    VolumeEnvelope::VolumeEnvelope(bool& sound_channel_enabled):
         sound_channel_enabled_(sound_channel_enabled),
         counter_(0),
         enabled_(false),
@@ -14,6 +14,26 @@ namespace gandalf
     }
 
     VolumeEnvelope::~VolumeEnvelope() = default;
+
+    void VolumeEnvelope::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, counter_);
+        serialization::Serialize(os, enabled_);
+        serialization::Serialize(os, current_volume_);
+        serialization::Serialize(os, starting_volume_);
+        serialization::Serialize(os, add_mode_);
+        serialization::Serialize(os, period_);
+    }
+
+    void VolumeEnvelope::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, counter_);
+        serialization::Deserialize(is, enabled_);
+        serialization::Deserialize(is, current_volume_);
+        serialization::Deserialize(is, starting_volume_);
+        serialization::Deserialize(is, add_mode_);
+        serialization::Deserialize(is, period_);
+    }
 
     void VolumeEnvelope::OnFrameSequencerStep()
     {

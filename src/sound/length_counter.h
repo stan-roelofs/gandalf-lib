@@ -9,11 +9,14 @@ namespace gandalf
     /**
      * A length counter disables a channel when it decrements to zero
      */
-    class LengthCounter : public FrameSequencer::Listener
+    class LengthCounter: public FrameSequencer::Listener, public Serializable
     {
     public:
         LengthCounter(int full_length, bool& channel_enabled);
         virtual ~LengthCounter();
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         void OnFrameSequencerStep() override;
         std::array<bool, 8> GetSteps() const override;

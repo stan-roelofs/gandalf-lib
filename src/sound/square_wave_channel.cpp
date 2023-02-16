@@ -31,6 +31,30 @@ namespace gandalf
 
     SquareWaveChannel::~SquareWaveChannel() = default;
 
+    void SquareWaveChannel::Serialize(std::ostream& os) const
+    {
+        SoundChannel::Serialize(os);
+
+        serialization::Serialize(os, pattern_duty_);
+        serialization::Serialize(os, duty_counter_);
+        serialization::Serialize(os, frequency_low_);
+        serialization::Serialize(os, frequency_high_);
+        serialization::Serialize(os, timer_);
+        serialization::Serialize(os, last_output_);
+    }
+
+    void SquareWaveChannel::Deserialize(std::istream& is)
+    {
+        SoundChannel::Deserialize(is);
+
+        serialization::Deserialize(is, pattern_duty_);
+        serialization::Deserialize(is, duty_counter_);
+        serialization::Deserialize(is, frequency_low_);
+        serialization::Deserialize(is, frequency_high_);
+        serialization::Deserialize(is, timer_);
+        serialization::Deserialize(is, last_output_);
+    }
+
     byte SquareWaveChannel::GetRegister(int index) const
     {
         assert(index >= 0 && index <= 4);

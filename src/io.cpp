@@ -70,4 +70,32 @@ namespace gandalf {
             Tick(double_speed ? hdma_.GetRemainingGDMACycles() * 2 : hdma_.GetRemainingGDMACycles(), double_speed);
     }
 
+    void IO::Serialize(std::ostream& os) const
+    {
+        timer_.Serialize(os);
+        lcd_.Serialize(os);
+        ppu_.Serialize(os);
+        serial_.Serialize(os);
+        joypad_.Serialize(os);
+        apu_.Serialize(os);
+        dma_.Serialize(os);
+        hdma_.Serialize(os);
+        serialization::Serialize(os, static_cast<byte>(mode_));
+    }
+
+    void IO::Deserialize(std::istream& is)
+    {
+        timer_.Deserialize(is);
+        lcd_.Deserialize(is);
+        ppu_.Deserialize(is);
+        serial_.Deserialize(is);
+        joypad_.Deserialize(is);
+        apu_.Deserialize(is);
+        dma_.Deserialize(is);
+        hdma_.Deserialize(is);
+        byte mode;
+        serialization::Deserialize(is, mode);
+        mode_ = static_cast<GameboyMode>(mode);
+    }
+
 } // namespace gandalf

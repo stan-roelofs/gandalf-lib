@@ -16,4 +16,14 @@ namespace gandalf {
             ram_[bank].fill(0);
     }
     MBC::~MBC() = default;
+
+    void MBC::Serialize(std::ostream& os) const {
+        serialization::Serialize(os, rom_);
+        serialization::Serialize(os, ram_);
+    }
+
+    void MBC::Deserialize(std::istream& is) {
+        serialization::Deserialize(is, rom_);
+        serialization::Deserialize(is, ram_);
+    }
 }

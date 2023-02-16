@@ -52,12 +52,12 @@ namespace gandalf {
 
     std::string Cartridge::Header::GetTitleString() const
     {
-        return std::string(reinterpret_cast<const char*>(title), 0x10);
+        return std::string(reinterpret_cast<const char*>(title.data()), 0x10);
     }
 
     std::string Cartridge::Header::GetManufacturerCodeString() const
     {
-        return std::string(reinterpret_cast<const char*>(manufacturer_code), 4);
+        return std::string(reinterpret_cast<const char*>(manufacturer_code.data()), 4);
     }
 
     std::string Cartridge::Header::GetDestinationString() const
@@ -68,7 +68,7 @@ namespace gandalf {
     std::string Cartridge::Header::GetLicenseeString() const
     {
         if (old_licensee_code == 0x33) {
-            std::string result = std::string(reinterpret_cast<const char*>(new_licensee_code), 2) + " - ";
+            std::string result = std::string(reinterpret_cast<const char*>(new_licensee_code.data()), 2) + " - ";
 
             switch (((new_licensee_code[0] & 0xF) << 4) | (new_licensee_code[1] & 0xF)) {
             case 0x00: result += "None"; break;
@@ -381,44 +381,57 @@ namespace gandalf {
             return "None";
     }
 
-    Cartridge::Cartridge() : Memory::AddressHandler("Cartridge"), header_() {}
+    void Cartridge::Header::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, logo);
+        serialization::Serialize(os, title);
+        serialization::Serialize(os, manufacturer_code);
+        serialization::Serialize(os, cgb_flag);
+        serialization::Serialize(os, new_licensee_code);
+        serialization::Serialize(os, sgb_flag);
+        serialization::Serialize(os, cartridge_type);
+        serialization::Serialize(os, rom_size);
+        serialization::Serialize(os, ram_size);
+        serialization::Serialize(os, destination_code);
+        serialization::Serialize(os, old_licensee_code);
+        serialization::Serialize(os, mask_rom_version);
+        serialization::Serialize(os, header_checksum);
+        serialization::Serialize(os, global_checksum);
+    }
+
+    void Cartridge::Header::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, logo);
+        serialization::Deserialize(is, title);
+        serialization::Deserialize(is, manufacturer_code);
+        serialization::Deserialize(is, cgb_flag);
+        serialization::Deserialize(is, new_licensee_code);
+        serialization::Deserialize(is, sgb_flag);
+        serialization::Deserialize(is, cartridge_type);
+        serialization::Deserialize(is, rom_size);
+        serialization::Deserialize(is, ram_size);
+        serialization::Deserialize(is, destination_code);
+        serialization::Deserialize(is, old_licensee_code);
+        serialization::Deserialize(is, mask_rom_version);
+        serialization::Deserialize(is, header_checksum);
+        serialization::Deserialize(is, global_checksum);
+    }
+
+    Cartridge::Cartridge(): Memory::AddressHandler("Cartridge"), header_() {}
 
     Cartridge::~Cartridge() = default;
 
-    bool Cartridge::Load(const ROM& bytes)
+    static std::unique_ptr<MBC> CreateMBC(const ROM& bytes, const Cartridge::Header& header)
     {
-        header_.reset();
-        mbc_.reset();
+        std::size_t rom_banks = std::size_t(1) << (header.rom_size + 1);
+        std::size_t ram_banks = std::size_t(0) << (header.ram_size + 1);
 
-        if (bytes.size() < 0x150) // The header is located at 0x100-0x14F, so bytes must be at least 0x150 bytes long.
-            return false;
-
-        std::shared_ptr<Header> result = std::make_shared<Header>();
-        std::copy(bytes.begin() + 0x104, bytes.begin() + 0x134, result->logo);
-        std::copy(bytes.begin() + 0x134, bytes.begin() + 0x144, result->title);
-        std::copy(bytes.begin() + 0x13F, bytes.begin() + 0x143, result->manufacturer_code);
-        result->cgb_flag = bytes.at(0x143);
-        std::copy(bytes.begin() + 0x144, bytes.begin() + 0x146, result->new_licensee_code);
-        result->sgb_flag = bytes.at(0x146);
-        result->cartridge_type = bytes.at(0x147);
-        result->rom_size = bytes.at(0x148);
-        result->ram_size = bytes.at(0x149);
-        result->destination_code = bytes.at(0x14A);
-        result->old_licensee_code = bytes.at(0x14B);
-        result->mask_rom_version = bytes.at(0x14C);
-        result->header_checksum = bytes.at(0x14D);
-        std::copy(bytes.begin() + 0x14E, bytes.begin() + 0x150, result->global_checksum);
-
-        std::size_t rom_banks = std::size_t(1) << (result->rom_size + 1);
-        std::size_t ram_banks = 0;
-        ram_banks = std::size_t(0) << (result->ram_size + 1);
-
-        if (kCartridgeBankProperties.find(result->cartridge_type) == kCartridgeBankProperties.end()) {
-            std::cerr << "Unsupported cartridge type: " << std::hex << (int)result->cartridge_type << " " << result->GetTypeString() << std::endl;
+        if (kCartridgeBankProperties.find(header.cartridge_type) == kCartridgeBankProperties.end()) {
+            std::cerr << "Unsupported cartridge type: " << std::hex << (int)header.cartridge_type << " " << header.GetTypeString() << std::endl;
             return false;
         }
 
-        const CartridgeBankProperties bank_properties = kCartridgeBankProperties.at(result->cartridge_type);
+        const CartridgeBankProperties bank_properties = kCartridgeBankProperties.at(header.cartridge_type);
         if (std::find(bank_properties.rom_banks.begin(), bank_properties.rom_banks.end(), rom_banks) == bank_properties.rom_banks.end())
         {
             std::cerr << "This cartridge type does not support " << rom_banks << " ROM banks." << std::endl;
@@ -439,34 +452,66 @@ namespace gandalf {
         else if (bytes.size() > expected_file_size)
             std::cout << "Warning: the file contains more data than expected" << std::endl;
 
-        switch (result->ram_size) {
+        switch (header.ram_size) {
         case 0x02: ram_banks = 1; break;
         case 0x03: ram_banks = 4; break;
         case 0x04: ram_banks = 16; break;
         case 0x05: ram_banks = 8; break;
         }
 
-        switch (result->cartridge_type)
+        switch (header.cartridge_type)
         {
-        case 0x00: mbc_ = std::make_unique<ROMOnly>(bytes, 0); break;
-        case 0x01: mbc_ = std::make_unique<MBC1>(bytes, rom_banks, 0, false); break;
-        case 0x02: mbc_ = std::make_unique<MBC1>(bytes, rom_banks, ram_banks, false); break;
-        case 0x03: mbc_ = std::make_unique<MBC1>(bytes, rom_banks, ram_banks, true); break;
-            //case 0x04: mbc_ = std::unique_ptr<MBC2>(new MBC2(bytes, rom_banks, ram_banks)); break;
-        case 0x08: mbc_ = std::make_unique<ROMOnly>(bytes, ram_banks); break;
+        case 0x00: return std::make_unique<ROMOnly>(bytes, 0); break;
+        case 0x01: return std::make_unique<MBC1>(bytes, rom_banks, 0, false); break;
+        case 0x02: return std::make_unique<MBC1>(bytes, rom_banks, ram_banks, false); break;
+        case 0x03: return std::make_unique<MBC1>(bytes, rom_banks, ram_banks, true); break;
+            //case 0x04: return std::unique_ptr<MBC2>(new MBC2(bytes, rom_banks, ram_banks)); break;
+        case 0x08: return std::make_unique<ROMOnly>(bytes, ram_banks); break;
         case 0x0F:
-        case 0x10: mbc_ = std::make_unique<MBC3>(bytes, rom_banks, ram_banks, true, true); break;
-        case 0x11: mbc_ = std::make_unique<MBC3>(bytes, rom_banks, 0, false, false); break;
-        case 0x12: mbc_ = std::make_unique<MBC3>(bytes, rom_banks, ram_banks, false, false); break;
-        case 0x13: mbc_ = std::make_unique<MBC3>(bytes, rom_banks, ram_banks, true, false); break;
-        case 0x19: mbc_ = std::make_unique<MBC5>(bytes, rom_banks, 0, false, false); break;
-        case 0x1A: mbc_ = std::make_unique<MBC5>(bytes, rom_banks, ram_banks, false, false); break;
-        case 0x1B: mbc_ = std::make_unique<MBC5>(bytes, rom_banks, ram_banks, true, false); break;
-        case 0x1C: mbc_ = std::make_unique<MBC5>(bytes, rom_banks, 0, false, true); break;
-        case 0x1D: mbc_ = std::make_unique<MBC5>(bytes, rom_banks, ram_banks, false, true); break;
-        case 0x1E: mbc_ = std::make_unique<MBC5>(bytes, rom_banks, ram_banks, true, true); break;
-        default: assert(false); break;
+        case 0x10: return std::make_unique<MBC3>(bytes, rom_banks, ram_banks, true, true); break;
+        case 0x11: return std::make_unique<MBC3>(bytes, rom_banks, 0, false, false); break;
+        case 0x12: return std::make_unique<MBC3>(bytes, rom_banks, ram_banks, false, false); break;
+        case 0x13: return std::make_unique<MBC3>(bytes, rom_banks, ram_banks, true, false); break;
+        case 0x19: return std::make_unique<MBC5>(bytes, rom_banks, 0, false, false); break;
+        case 0x1A: return std::make_unique<MBC5>(bytes, rom_banks, ram_banks, false, false); break;
+        case 0x1B: return std::make_unique<MBC5>(bytes, rom_banks, ram_banks, true, false); break;
+        case 0x1C: return std::make_unique<MBC5>(bytes, rom_banks, 0, false, true); break;
+        case 0x1D: return std::make_unique<MBC5>(bytes, rom_banks, ram_banks, false, true); break;
+        case 0x1E: return std::make_unique<MBC5>(bytes, rom_banks, ram_banks, true, true); break;
         }
+
+        assert(false);
+
+		return nullptr;
+    }
+
+    bool Cartridge::Load(const ROM& bytes)
+    {
+        header_.reset();
+        mbc_.reset();
+
+        if (bytes.size() < 0x150) // The header is located at 0x100-0x14F, so bytes must be at least 0x150 bytes long.
+            return false;
+
+        std::shared_ptr<Header> result = std::make_shared<Header>();
+        std::copy(bytes.begin() + 0x104, bytes.begin() + 0x134, result->logo.begin());
+        std::copy(bytes.begin() + 0x134, bytes.begin() + 0x144, result->title.begin());
+        std::copy(bytes.begin() + 0x13F, bytes.begin() + 0x143, result->manufacturer_code.begin());
+        result->cgb_flag = bytes.at(0x143);
+        std::copy(bytes.begin() + 0x144, bytes.begin() + 0x146, result->new_licensee_code.begin());
+        result->sgb_flag = bytes.at(0x146);
+        result->cartridge_type = bytes.at(0x147);
+        result->rom_size = bytes.at(0x148);
+        result->ram_size = bytes.at(0x149);
+        result->destination_code = bytes.at(0x14A);
+        result->old_licensee_code = bytes.at(0x14B);
+        result->mask_rom_version = bytes.at(0x14C);
+        result->header_checksum = bytes.at(0x14D);
+        std::copy(bytes.begin() + 0x14E, bytes.begin() + 0x150, result->global_checksum.begin());
+
+        mbc_ = CreateMBC(bytes, *result);
+        if (!mbc_)
+            return false;
 
         header_ = std::move(result);
         return true;
@@ -508,5 +553,30 @@ namespace gandalf {
             result.insert(i);
 
         return result;
+    }
+
+    void Cartridge::Serialize(std::ostream& stream) const
+    {
+        if (!header_ || !mbc_)
+            throw SerializationException("No cartridge loaded");
+
+        header_->Serialize(stream);
+        mbc_->Serialize(stream);
+    }
+
+    void Cartridge::Deserialize(std::istream& stream)
+    {
+        auto header = std::make_shared<Header>();
+        header->Deserialize(stream);
+        header_ = std::move(header);
+
+        ROM rom;
+        rom.resize(ROMBankSize * (header->rom_size + 1));
+
+        mbc_ = CreateMBC(rom, *header_);
+        if (!mbc_)
+            throw SerializationException("Failed to create MBC");
+
+        mbc_->Deserialize(stream);
     }
 }

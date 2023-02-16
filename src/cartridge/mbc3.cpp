@@ -5,7 +5,7 @@
 #include <gandalf/util.h>
 
 namespace gandalf {
-    MBC3::MBC3(const ROM& rom, std::size_t rom_banks, std::size_t ram_banks, bool has_battery, bool has_timer) : MBC(rom, rom_banks, ram_banks),
+    MBC3::MBC3(const ROM& rom, std::size_t rom_banks, std::size_t ram_banks, bool has_battery, bool has_timer): MBC(rom, rom_banks, ram_banks),
         ram_enabled_(false),
         rom_bank_number_(0),
         ram_bank_number_(0),
@@ -60,5 +60,25 @@ namespace gandalf {
 
             ram_[ram_bank_number_][address - 0xA000] = value;
         }
+    }
+
+    void MBC3::Serialize(std::ostream& os) const {
+        MBC::Serialize(os);
+
+        serialization::Serialize(os, ram_enabled_);
+        serialization::Serialize(os, rom_bank_number_);
+        serialization::Serialize(os, ram_bank_number_);
+        serialization::Serialize(os, has_battery_);
+        serialization::Serialize(os, has_timer_);
+    }
+
+    void MBC3::Deserialize(std::istream& is) {
+        MBC::Deserialize(is);
+
+        serialization::Deserialize(is, ram_enabled_);
+        serialization::Deserialize(is, rom_bank_number_);
+        serialization::Deserialize(is, ram_bank_number_);
+        serialization::Deserialize(is, has_battery_);
+        serialization::Deserialize(is, has_timer_);
     }
 }

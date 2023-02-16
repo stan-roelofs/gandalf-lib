@@ -95,4 +95,26 @@ namespace gandalf
     {
         return { address::DMA };
     }
+
+    void DMA::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, dma_);
+        serialization::Serialize(os, in_progress_);
+        serialization::Serialize(os, current_byte_read_);
+        serialization::Serialize(os, current_byte_write_);
+        serialization::Serialize(os, source_address_);
+        serialization::Serialize(os, read_value_);
+        serialization::Serialize(os, cycle_counter_);
+    }
+
+    void DMA::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, dma_);
+        serialization::Deserialize(is, in_progress_);
+        serialization::Deserialize(is, current_byte_read_);
+        serialization::Deserialize(is, current_byte_write_);
+        serialization::Deserialize(is, source_address_);
+        serialization::Deserialize(is, read_value_);
+        serialization::Deserialize(is, cycle_counter_);
+    }
 }

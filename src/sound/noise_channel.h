@@ -8,11 +8,14 @@
 
 namespace gandalf
 {
-    class NoiseChannel : public SoundChannel
+    class NoiseChannel: public SoundChannel
     {
     public:
         NoiseChannel(FrameSequencer& frame_sequencer);
         ~NoiseChannel();
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         byte GetRegister(int index) const override;
         void SetRegister(int index, byte value) override;

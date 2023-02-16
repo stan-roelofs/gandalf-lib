@@ -22,6 +22,20 @@ namespace gandalf {
     ~Gameboy();
 
     /**
+     * Loads a save state from a stream
+     * @param is The stream to load from
+     * @returns Whether the save state was loaded successfully
+    */
+    bool LoadState(std::istream& is);
+
+    /**
+     * Saves the current emulator state to a stream
+     * @param os The stream to save to
+     * @returns Whether the save state was saved successfully
+    */
+    bool SaveState(std::ostream& os);
+
+    /**
      * Loads a ROM into the Gameboy
      * @param rom The raw ROM data
      * @returns Whether the ROM was loaded successfully
@@ -62,8 +76,7 @@ namespace gandalf {
     HRAM hram_;
     Cartridge cartridge_;
 
-    class BootROMHandler: public Memory::AddressHandler
-    {
+    class BootROMHandler: public Memory::AddressHandler, public Serializable {
     public:
       BootROMHandler(Gameboy& gb, const std::vector<byte> boot_rom): Memory::AddressHandler("Boot ROM"), key0_(0), boot_rom_(boot_rom), gb_(gb)
       {
@@ -104,6 +117,16 @@ namespace gandalf {
         addresses.insert(address::BANK);
         addresses.insert(address::KEY0);
         return addresses;
+      }
+
+      void Serialize(std::ostream& os) const override
+      {
+        serialization::Serialize(os, key0_);
+      }
+
+      void Deserialize(std::istream& is) override
+      {
+        serialization::Deserialize(is, key0_);
       }
 
     private:

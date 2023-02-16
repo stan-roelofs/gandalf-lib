@@ -62,7 +62,7 @@ namespace gandalf
                     break;
                 }
             }
-                        
+
             if (remaining_length_ == 0)
                 state_ = State::kIdle;
             else
@@ -84,7 +84,7 @@ namespace gandalf
     byte HDMA::Read(word address) const
     {
         assert(address == address::HDMA1 || address == address::HDMA2 || address == address::HDMA3 || address == address::HDMA4 || address == address::HDMA5);
-            
+
         if (mode_ != GameboyMode::CGB)
             return 0xFF;
 
@@ -174,5 +174,39 @@ namespace gandalf
     std::set<word> HDMA::GetAddresses() const
     {
         return { address::HDMA1, address::HDMA2, address::HDMA3, address::HDMA4, address::HDMA5 };
+    }
+
+    void HDMA::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, hdma1_);
+        serialization::Serialize(os, hdma2_);
+        serialization::Serialize(os, hdma3_);
+        serialization::Serialize(os, hdma4_);
+        serialization::Serialize(os, remaining_length_);
+        serialization::Serialize(os, hblank_);
+        serialization::Serialize(os, remaining_bytes_hblank_);
+        serialization::Serialize(os, current_byte_);
+        serialization::Serialize(os, static_cast<byte>(state_));
+        serialization::Serialize(os, source_);
+        serialization::Serialize(os, destination_);
+        serialization::Serialize(os, static_cast<byte>(mode_));
+    }
+
+    void HDMA::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, hdma1_);
+        serialization::Deserialize(is, hdma2_);
+        serialization::Deserialize(is, hdma3_);
+        serialization::Deserialize(is, hdma4_);
+        serialization::Deserialize(is, remaining_length_);
+        serialization::Deserialize(is, hblank_);
+        serialization::Deserialize(is, remaining_bytes_hblank_);
+        serialization::Deserialize(is, current_byte_);
+        serialization::Deserialize(is, reinterpret_cast<byte&>(state_));
+        serialization::Deserialize(is, source_);
+        serialization::Deserialize(is, destination_);
+        byte mode;
+        serialization::Deserialize(is, mode);
+        mode_ = static_cast<GameboyMode>(mode);
     }
 }

@@ -142,6 +142,44 @@ namespace gandalf
         return addresses;
     }
 
+    void APU::Serialize(std::ostream& os) const
+    {
+        for (const auto& channel : sound_channels_)
+            channel->Serialize(os);
+
+        frame_sequencer_.Serialize(os);
+        serialization::Serialize(os, samples_);
+        serialization::Serialize(os, mute_channel_);
+        serialization::Serialize(os, ticks_until_sample_);
+
+        serialization::Serialize(os, vin_left_);
+        serialization::Serialize(os, vin_right_);
+        serialization::Serialize(os, left_volume_);
+        serialization::Serialize(os, right_volume_);
+        serialization::Serialize(os, channel_left_enabled_);
+        serialization::Serialize(os, channel_right_enabled_);
+        serialization::Serialize(os, sound_enabled_);
+    }
+
+    void APU::Deserialize(std::istream& is)
+    {
+        for (auto& channel : sound_channels_)
+            channel->Deserialize(is);
+
+        frame_sequencer_.Deserialize(is);
+        serialization::Deserialize(is, samples_);
+        serialization::Deserialize(is, mute_channel_);
+        serialization::Deserialize(is, ticks_until_sample_);
+
+        serialization::Deserialize(is, vin_left_);
+        serialization::Deserialize(is, vin_right_);
+        serialization::Deserialize(is, left_volume_);
+        serialization::Deserialize(is, right_volume_);
+        serialization::Deserialize(is, channel_left_enabled_);
+        serialization::Deserialize(is, channel_right_enabled_);
+        serialization::Deserialize(is, sound_enabled_);
+    }
+
     void APU::Tick()
     {
         frame_sequencer_.Tick();

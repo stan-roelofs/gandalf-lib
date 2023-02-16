@@ -63,11 +63,15 @@ TEST(WRAM, cgb_write_read_bank_4)
 {
     std::unique_ptr<WRAM> wram = std::make_unique<WRAM>(GameboyMode::CGB);
     wram->Write(address::SVKB, 4);
+    EXPECT_EQ(wram->GetCurrentBank(), 4);
     wram->Write(0xD000, 0x42);
-
-    wram->Write(address::SVKB, 0);
+    wram->Write(address::SVKB, 1);
+    EXPECT_EQ(wram->GetCurrentBank(), 1);
+	wram->Write(0xD000, 0x43);
+	EXPECT_EQ(wram->Read(0xD000), 0x43);
     EXPECT_NE(wram->Read(0xD000), 0x42);
     wram->Write(address::SVKB, 4);
+    EXPECT_EQ(wram->GetCurrentBank(), 4);
     EXPECT_EQ(wram->Read(0xD000), 0x42);
 }
 

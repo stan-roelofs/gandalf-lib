@@ -5,7 +5,7 @@
 #include <gandalf/util.h>
 
 namespace gandalf {
-    HRAM::HRAM() : Memory::AddressHandler("HRAM") {
+    HRAM::HRAM(): Memory::AddressHandler("HRAM") {
         data_.fill((byte)std::rand());
     }
 
@@ -33,5 +33,15 @@ namespace gandalf {
             result.insert(i);
 
         return result;
+    }
+
+    void HRAM::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, data_);
+    }
+
+    void HRAM::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, data_);
     }
 } // namespace gandalf

@@ -5,13 +5,16 @@
 #include <gandalf/mbc.h>
 
 namespace gandalf {
-    class MBC1 : public MBC {
+    class MBC1: public MBC {
     public:
         MBC1(const ROM& rom, std::size_t rom_banks, std::size_t ram_banks, bool has_battery);
         virtual ~MBC1();
 
         byte Read(word address) const override;
         void Write(word address, byte value) override;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
     private:
         bool ram_enabled_;

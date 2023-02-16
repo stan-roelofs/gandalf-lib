@@ -41,7 +41,7 @@ namespace gandalf {
 
         EXPECT_TRUE(cartridge_.Load(bytes_));
 
-        EXPECT_STREQ(title.c_str(), reinterpret_cast<const char*>(cartridge_.GetHeader()->title));
+        EXPECT_STREQ(title.c_str(), reinterpret_cast<const char*>(cartridge_.GetHeader()->title.data()));
     }
 
     TEST_F(CartridgeTest, read_manufacturer_code)
@@ -52,7 +52,7 @@ namespace gandalf {
 
         EXPECT_TRUE(cartridge_.Load(bytes_));
 
-        EXPECT_STREQ(manufacturer_code.c_str(), reinterpret_cast<const char*>(cartridge_.GetHeader()->manufacturer_code));
+        EXPECT_STREQ(manufacturer_code.c_str(), reinterpret_cast<const char*>(cartridge_.GetHeader()->manufacturer_code.data()));
     }
 
     TEST_F(CartridgeTest, read_cgb_flag)

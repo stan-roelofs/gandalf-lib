@@ -5,12 +5,13 @@
 #include <list>
 #include <memory>
 
+#include <gandalf/serialization.h>
 #include <gandalf/types.h>
 
 namespace gandalf
 {
     /** The frame sequencer generates low frequency clocks for the modulation units. It is clocked by a 512 Hz timer. */
-    class FrameSequencer
+    class FrameSequencer: public Serializable
     {
     public:
         class Listener
@@ -25,6 +26,9 @@ namespace gandalf
 
         FrameSequencer();
         ~FrameSequencer();
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         void AddListener(std::shared_ptr<Listener> listener);
 

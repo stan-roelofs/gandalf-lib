@@ -6,11 +6,14 @@
 
 namespace gandalf
 {
-    class WaveChannel : public SoundChannel
+    class WaveChannel: public SoundChannel
     {
     public:
         WaveChannel(FrameSequencer& frame_sequencer, const std::array<byte, 0x20>& wave_ram);
         ~WaveChannel();
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         byte GetRegister(int index) const override;
         void SetRegister(int index, byte value) override;

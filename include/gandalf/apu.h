@@ -2,12 +2,13 @@
 #define __GANDALF_APU_H
 
 #include "memory.h"
+#include "serialization.h"
 #include "sound/frame_sequencer.h"
 #include "sound/sound_channel.h"
 
 namespace gandalf
 {
-    class APU: public Memory::AddressHandler
+    class APU: public Memory::AddressHandler, public Serializable
     {
     public:
         enum class Channel
@@ -41,6 +42,9 @@ namespace gandalf
         void Write(word address, byte value) override;
         byte Read(word address) const override;
         std::set<word> GetAddresses() const override;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         void Tick();
 

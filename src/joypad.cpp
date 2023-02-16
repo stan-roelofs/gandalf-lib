@@ -63,6 +63,18 @@ namespace gandalf
         return { address::P1 };
     }
 
+    void Joypad::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, pressed_buttons_);
+        serialization::Serialize(os, p1_);
+    }
+
+    void Joypad::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, pressed_buttons_);
+        serialization::Deserialize(is, p1_);
+    }
+
     void Joypad::Update()
     {
         byte result = p1_ | 0xCF;

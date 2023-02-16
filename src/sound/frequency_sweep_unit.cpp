@@ -4,7 +4,7 @@
 
 namespace gandalf
 {
-    FrequencySweepUnit::FrequencySweepUnit(byte& frequency_low, byte& frequency_high, bool& sound_channel_enabled) :
+    FrequencySweepUnit::FrequencySweepUnit(byte& frequency_low, byte& frequency_high, bool& sound_channel_enabled):
         sound_channel_enabled_(sound_channel_enabled),
         frequency_low_(frequency_low),
         frequency_high_(frequency_high),
@@ -18,6 +18,26 @@ namespace gandalf
     }
 
     FrequencySweepUnit::~FrequencySweepUnit() = default;
+
+    void FrequencySweepUnit::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, enabled_);
+        serialization::Serialize(os, frequency_shadow_register_);
+        serialization::Serialize(os, period_);
+        serialization::Serialize(os, shift_);
+        serialization::Serialize(os, negate_);
+        serialization::Serialize(os, timer_);
+    }
+
+    void FrequencySweepUnit::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, enabled_);
+        serialization::Deserialize(is, frequency_shadow_register_);
+        serialization::Deserialize(is, period_);
+        serialization::Deserialize(is, shift_);
+        serialization::Deserialize(is, negate_);
+        serialization::Deserialize(is, timer_);
+    }
 
     void FrequencySweepUnit::Trigger()
     {

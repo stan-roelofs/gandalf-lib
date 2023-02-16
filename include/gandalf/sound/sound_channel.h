@@ -1,11 +1,12 @@
 #ifndef __GANDALF_SOUND_CHANNEL_H
 #define __GANDALF_SOUND_CHANNEL_H
 
+#include <gandalf/serialization.h>
 #include <gandalf/types.h>
 
 namespace gandalf
 {
-    class SoundChannel
+    class SoundChannel: public Serializable
     {
     public:
         SoundChannel();
@@ -27,6 +28,9 @@ namespace gandalf
 
         /// @returns the current sample
         virtual byte Tick() = 0;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
     protected:
         bool channel_enabled_;

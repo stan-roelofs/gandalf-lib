@@ -2,10 +2,11 @@
 #define __GANDALF_DMA_H
 
 #include "memory.h"
+#include "serialization.h"
 
 namespace gandalf
 {
-    class DMA: public Memory::AddressHandler
+    class DMA: public Memory::AddressHandler, public Serializable
     {
     public:
         DMA(Memory& memory);
@@ -16,6 +17,9 @@ namespace gandalf
         byte Read(word address) const override;
         void Write(word address, byte value) override;
         std::set<word> GetAddresses() const override;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
     private:
         void Start();

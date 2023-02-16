@@ -9,11 +9,14 @@ namespace gandalf
     /**
      * A volume envelope has a volume counter and an internal timer clocked at 64 Hz by the frame sequencer.
      * When the timer generates a clock and the envelope period is not zero, a new volume is calculated by adding or subtracting one from the current volume */
-    class VolumeEnvelope : public FrameSequencer::Listener
+    class VolumeEnvelope: public FrameSequencer::Listener, public Serializable
     {
     public:
         VolumeEnvelope(bool& sound_channel_enabled);
         virtual ~VolumeEnvelope();
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
         void OnFrameSequencerStep() override;
         std::array<bool, 8> GetSteps() const override;

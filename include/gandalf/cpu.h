@@ -1,14 +1,15 @@
 #ifndef __GANDALF_CPU_H
 #define __GANDALF_CPU_H
 
-#include "memory.h"
 #include "constants.h"
 #include "cpu_registers.h"
 #include "io.h"
+#include "memory.h"
+#include "serialization.h"
 
 namespace gandalf {
 
-  class CPU: public Memory::AddressHandler {
+  class CPU: public Memory::AddressHandler, public Serializable {
   public:
     CPU(GameboyMode mode, IO& io, Memory& memory);
     ~CPU();
@@ -18,6 +19,9 @@ namespace gandalf {
     byte Read(word address) const override;
     void Write(word address, byte value) override;
     std::set<word> GetAddresses() const override;
+
+    void Serialize(std::ostream& os) const override;
+    void Deserialize(std::istream& is) override;
 
     const Registers& GetRegisters() const { return registers_; }
 

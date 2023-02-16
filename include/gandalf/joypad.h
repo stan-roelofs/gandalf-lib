@@ -3,11 +3,12 @@
 
 #include <set>
 
-#include <gandalf/memory.h>
+#include "memory.h"
+#include "serialization.h"
 
 namespace gandalf
 {
-    class Joypad: public Memory::AddressHandler
+    class Joypad: public Memory::AddressHandler, public Serializable
     {
     public:
         enum Button {
@@ -29,6 +30,9 @@ namespace gandalf
         byte Read(word address) const override;
         void Write(word address, byte value) override;
         std::set<word> GetAddresses() const override;
+
+        void Serialize(std::ostream& os) const override;
+        void Deserialize(std::istream& is) override;
 
     private:
         void Update();

@@ -10,12 +10,23 @@ namespace
 namespace gandalf
 {
     // Values are initialized such that the first tick triggers a step to 0
-    FrameSequencer::FrameSequencer() : counter_(kDivider), current_step_(7)
+    FrameSequencer::FrameSequencer(): counter_(kDivider), current_step_(7)
     {
     }
 
     FrameSequencer::~FrameSequencer() = default;
 
+    void FrameSequencer::Serialize(std::ostream& os) const
+    {
+        serialization::Serialize(os, counter_);
+        serialization::Serialize(os, current_step_);
+    }
+
+    void FrameSequencer::Deserialize(std::istream& is)
+    {
+        serialization::Deserialize(is, counter_);
+        serialization::Deserialize(is, current_step_);
+    }
 
     void FrameSequencer::AddListener(std::shared_ptr<Listener> listener)
     {

@@ -21,6 +21,16 @@ namespace gandalf
         virtual void Deserialize(std::istream& is) = 0;
     };
 
+    class SerializationException: public std::exception
+    {
+    public:
+        SerializationException(const std::string& message): message_(message) {}
+        virtual const char* what() const { return message_.c_str(); }
+
+    private:
+        std::string message_;
+    };
+
     namespace serialization
     {
         template <typename T>
