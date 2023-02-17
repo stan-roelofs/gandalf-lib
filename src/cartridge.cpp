@@ -571,7 +571,8 @@ namespace gandalf {
         header_ = std::move(header);
 
         ROM rom;
-        rom.resize(ROMBankSize * (header->rom_size + 1));
+        std::size_t rom_banks = std::size_t(1) << (header_->rom_size + 1);
+        rom.resize(ROMBankSize * (rom_banks));
 
         mbc_ = CreateMBC(rom, *header_);
         if (!mbc_)
