@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
 set(CMAKE_CXX_STANDARD 17)
  
-project(gandalf-lib VERSION 0.9.0)
+project(gandalf-lib VERSION 0.9.1-DEV LANGUAGES CXX)
 
 option(GANDALF_BUILD_TESTS "Build tests" OFF)
 option(GANDALF_BUILD_EXAMPLES "Build examples" OFF)

@@ -767,7 +767,7 @@ namespace gandalf {
     serialization::Deserialize(is, prepare_speed_switch_);
     byte mode;
     serialization::Deserialize(is, mode);
-	gameboy_mode_ = static_cast<GameboyMode>(mode);
+    gameboy_mode_ = static_cast<GameboyMode>(mode);
   }
 
   void CPU::Tick() {
