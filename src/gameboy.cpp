@@ -72,6 +72,9 @@ namespace gandalf {
     {
         try
         {
+			auto length = is.seekg(0, std::ios::end).tellg();
+			is.seekg(0, std::ios::beg);
+
             byte mode, model;
             serialization::Deserialize(is, mode);
             serialization::Deserialize(is, model);
@@ -91,6 +94,9 @@ namespace gandalf {
                 memory_.Register(*boot_rom_handler_);
                 boot_rom_handler_->Deserialize(is);
             }
+
+			if (is.tellg() != length)
+				return false;
         }
         catch (const std::exception&)
         {
@@ -154,6 +160,8 @@ namespace gandalf {
             cpu_.SetMode(mode_);
             wram_.SetMode(mode_);
         }
+
+        boot_rom_handler_.reset();
     }
 
     void Gameboy::Run()
