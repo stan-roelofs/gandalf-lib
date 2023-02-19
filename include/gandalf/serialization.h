@@ -25,7 +25,7 @@ namespace gandalf
     {
     public:
         SerializationException(const std::string& message): message_(message) {}
-        virtual const char* what() const { return message_.c_str(); }
+        virtual const char* what() const noexcept { return message_.c_str(); }
 
     private:
         std::string message_;
@@ -39,7 +39,7 @@ namespace gandalf
             if constexpr (std::is_same<T, bool>::value) {
                 os.put(value ? 1 : 0);
                 if (os.fail())
-					throw SerializationException("Failed to serialize bool");
+                    throw SerializationException("Failed to serialize bool");
             }
             else if constexpr (std::is_base_of<Serializable, T>::value)
                 value.Serialize(os);
@@ -51,7 +51,7 @@ namespace gandalf
                     os.put(static_cast<char>(value & 0xFF));
                     value >>= 8;
                     if (os.fail())
-						throw SerializationException("Failed to serialize");
+                        throw SerializationException("Failed to serialize");
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace gandalf
             {
                 value = is.get() != 0;
                 if (is.fail())
-					throw SerializationException("Failed to deserialize bool");
+                    throw SerializationException("Failed to deserialize bool");
             }
             else if constexpr (std::is_base_of<Serializable, T>::value)
             {
@@ -109,8 +109,8 @@ namespace gandalf
                 value = 0;
                 for (size_t byte = 0; byte < sizeof(T); ++byte) {
                     value |= static_cast<T>(is.get()) << (byte * 8);
-					if (is.fail())
-						throw SerializationException("Failed to deserialize integral type");
+                    if (is.fail())
+                        throw SerializationException("Failed to deserialize integral type");
                 }
             }
         }

@@ -428,26 +428,26 @@ namespace gandalf {
 
         if (kCartridgeBankProperties.find(header.cartridge_type) == kCartridgeBankProperties.end()) {
             std::cerr << "Unsupported cartridge type: " << std::hex << (int)header.cartridge_type << " " << header.GetTypeString() << std::endl;
-            return false;
+            return {};
         }
 
         const CartridgeBankProperties bank_properties = kCartridgeBankProperties.at(header.cartridge_type);
         if (std::find(bank_properties.rom_banks.begin(), bank_properties.rom_banks.end(), rom_banks) == bank_properties.rom_banks.end())
         {
             std::cerr << "This cartridge type does not support " << rom_banks << " ROM banks." << std::endl;
-            return false;
+            return {};
         }
         if (std::find(bank_properties.ram_banks.begin(), bank_properties.ram_banks.end(), ram_banks) == bank_properties.ram_banks.end())
         {
             std::cerr << "This cartridge type does not support " << ram_banks << " RAM banks." << std::endl;
-            return false;
+            return {};
         }
 
         const std::size_t expected_file_size = rom_banks * ROMBankSize;
         if (bytes.size() < expected_file_size)
         {
             std::cerr << "The file is too small to contain " << rom_banks << " banks of ROM" << std::endl;
-            return false;
+            return {};
         }
         else if (bytes.size() > expected_file_size)
             std::cout << "Warning: the file contains more data than expected" << std::endl;
@@ -482,7 +482,7 @@ namespace gandalf {
 
         assert(false);
 
-		return nullptr;
+        return nullptr;
     }
 
     bool Cartridge::Load(const ROM& bytes)
