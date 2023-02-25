@@ -87,6 +87,8 @@ namespace gandalf {
                 if (BETWEEN(lcd_.GetLY() + 16, y, y + sprite_size))
                 {
                     Sprite sprite;
+                    sprite.tile_data_low = 0;
+                    sprite.tile_data_high = 0;
                     sprite.y = y;
                     sprite.x = Read(address + 1);
                     sprite.tile_index = Read(address + 2);
