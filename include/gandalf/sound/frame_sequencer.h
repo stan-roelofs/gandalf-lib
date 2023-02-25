@@ -28,7 +28,7 @@ namespace gandalf
         ~FrameSequencer();
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
         void AddListener(std::shared_ptr<Listener> listener);
 

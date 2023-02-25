@@ -73,7 +73,7 @@ namespace gandalf {
         serialization::Serialize(os, static_cast<byte>(mode_));
     }
 
-    void WRAM::Deserialize(std::istream& is)
+    void WRAM::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, data_);
         serialization::Deserialize(is, wram_bank_);

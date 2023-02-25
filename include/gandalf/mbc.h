@@ -21,7 +21,7 @@ namespace gandalf
         virtual void Write(word address, byte value) = 0;
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
     protected:
         using ROMBank = std::array<byte, ROMBankSize>;

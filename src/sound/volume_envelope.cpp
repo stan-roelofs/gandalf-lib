@@ -25,7 +25,7 @@ namespace gandalf
         serialization::Serialize(os, period_);
     }
 
-    void VolumeEnvelope::Deserialize(std::istream& is)
+    void VolumeEnvelope::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, counter_);
         serialization::Deserialize(is, enabled_);

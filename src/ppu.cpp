@@ -240,7 +240,7 @@ namespace gandalf {
         serialization::Serialize(os, fetched_sprites_);
     }
 
-    void PPU::Deserialize(std::istream& is)
+    void PPU::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, line_ticks_);
         serialization::Deserialize(is, stat_interrupt_line_);
@@ -264,7 +264,7 @@ namespace gandalf {
         serialization::Serialize(os, oam_index);
     }
 
-    void PPU::Sprite::Deserialize(std::istream& is)
+    void PPU::Sprite::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, y);
         serialization::Deserialize(is, x);
@@ -283,7 +283,7 @@ namespace gandalf {
         serialization::Serialize(os, sprite_priority);
     }
 
-    void PPU::Pixel::Deserialize(std::istream& is)
+    void PPU::Pixel::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, color);
         serialization::Deserialize(is, palette);
@@ -342,7 +342,7 @@ namespace gandalf {
         serialization::Serialize(os, tile_attributes_);
     }
 
-    void PPU::Pipeline::Deserialize(std::istream& is)
+    void PPU::Pipeline::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, background_fifo_);
         serialization::Deserialize(is, sprite_fifo_);

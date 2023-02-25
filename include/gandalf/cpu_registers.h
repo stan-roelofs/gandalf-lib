@@ -77,7 +77,7 @@ namespace gandalf {
       serialization::Serialize(os, interrupt_master_enable);
     }
 
-    void Deserialize(std::istream& is) override {
+    void Deserialize(std::istream& is, std::uint16_t) override {
       serialization::Deserialize(is, af_combined);
       serialization::Deserialize(is, bc_combined);
       serialization::Deserialize(is, de_combined);

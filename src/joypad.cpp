@@ -69,7 +69,7 @@ namespace gandalf
         serialization::Serialize(os, p1_);
     }
 
-    void Joypad::Deserialize(std::istream& is)
+    void Joypad::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, pressed_buttons_);
         serialization::Deserialize(is, p1_);

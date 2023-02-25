@@ -22,7 +22,7 @@ namespace gandalf {
         serialization::Serialize(os, ram_);
     }
 
-    void MBC::Deserialize(std::istream& is) {
+    void MBC::Deserialize(std::istream& is, std::uint16_t) {
         serialization::Deserialize(is, rom_);
         serialization::Deserialize(is, ram_);
     }

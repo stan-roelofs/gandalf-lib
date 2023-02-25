@@ -43,9 +43,9 @@ namespace gandalf
         serialization::Serialize(os, last_output_);
     }
 
-    void SquareWaveChannel::Deserialize(std::istream& is)
+    void SquareWaveChannel::Deserialize(std::istream& is, std::uint16_t version)
     {
-        SoundChannel::Deserialize(is);
+        SoundChannel::Deserialize(is, version);
 
         serialization::Deserialize(is, pattern_duty_);
         serialization::Deserialize(is, duty_counter_);

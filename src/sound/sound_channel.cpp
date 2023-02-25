@@ -18,7 +18,7 @@ namespace gandalf
         serialization::Serialize(os, channel_enabled_);
     }
 
-    void SoundChannel::Deserialize(std::istream& is)
+    void SoundChannel::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, channel_enabled_);
     }

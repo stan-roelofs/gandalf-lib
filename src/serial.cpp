@@ -61,7 +61,7 @@ namespace gandalf {
         serialization::Serialize(os, sc_);
     }
 
-    void Serial::Deserialize(std::istream& is) {
+    void Serial::Deserialize(std::istream& is, std::uint16_t) {
         serialization::Deserialize(is, sb_);
         serialization::Deserialize(is, sc_);
     }

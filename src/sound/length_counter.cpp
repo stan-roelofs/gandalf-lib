@@ -24,7 +24,7 @@ namespace gandalf
         serialization::Serialize(os, full_length_);
     }
 
-    void LengthCounter::Deserialize(std::istream& is)
+    void LengthCounter::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, counter_enabled_);
         serialization::Deserialize(is, remaining_length_);

@@ -32,7 +32,7 @@ namespace gandalf
         std::set<word> GetAddresses() const override;
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
     private:
         void Update();

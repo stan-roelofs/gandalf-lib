@@ -22,7 +22,7 @@ namespace gandalf
         serialization::Serialize(os, current_step_);
     }
 
-    void FrameSequencer::Deserialize(std::istream& is)
+    void FrameSequencer::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, counter_);
         serialization::Deserialize(is, current_step_);

@@ -137,7 +137,7 @@ TEST(WRAM, serialize)
     wram->Serialize(ss);
 
     std::unique_ptr<WRAM> wram2 = std::make_unique<WRAM>(GameboyMode::DMG);
-    wram2->Deserialize(ss);
+    wram2->Deserialize(ss, 1);
 
     EXPECT_EQ(wram->Read(0xC000), wram2->Read(0xC000));
     EXPECT_EQ(wram->Read(0xD000), wram2->Read(0xD000));

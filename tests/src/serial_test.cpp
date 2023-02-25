@@ -60,7 +60,7 @@ TEST(Serial, serialize)
     serial.Serialize(ss);
 
     Serial deserialized(GameboyMode::DMG);
-    deserialized.Deserialize(ss);
+    deserialized.Deserialize(ss, 1);
 
     EXPECT_EQ(deserialized.GetCurrentByte(), 0x42);
     EXPECT_TRUE(deserialized.GetInProgress());

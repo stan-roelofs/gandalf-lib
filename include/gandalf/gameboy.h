@@ -124,7 +124,7 @@ namespace gandalf {
         serialization::Serialize(os, key0_);
       }
 
-      void Deserialize(std::istream& is) override
+      void Deserialize(std::istream& is, std::uint16_t) override
       {
         serialization::Deserialize(is, key0_);
       }
