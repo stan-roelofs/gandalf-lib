@@ -13,12 +13,12 @@
 namespace gandalf
 {
     APU::APU(): Memory::AddressHandler("APU"),
+        ticks_until_sample_(0),
         vin_left_(false),
         vin_right_(false),
         left_volume_(0),
         right_volume_(0),
-        sound_enabled_(false),
-        ticks_until_sample_(0)
+        sound_enabled_(false)
     {
         wave_ram_.fill((byte)std::rand());
         samples_.fill(0);
