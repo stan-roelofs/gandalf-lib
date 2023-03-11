@@ -33,7 +33,7 @@ namespace gandalf {
         void SetMode(GameboyMode mode);
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
     private:
         struct Sprite: public Serializable {
@@ -53,7 +53,7 @@ namespace gandalf {
             bool operator!=(const Sprite& other) const { return !(*this == other); }
 
             void Serialize(std::ostream& os) const override;
-            void Deserialize(std::istream& is) override;
+            void Deserialize(std::istream& is, std::uint16_t version) override;
         };
 
         struct Pixel: public Serializable {
@@ -70,7 +70,7 @@ namespace gandalf {
 
 
             void Serialize(std::ostream& os) const override;
-            void Deserialize(std::istream& is) override;
+            void Deserialize(std::istream& is, std::uint16_t version) override;
 
             byte color; // The color index of the pixel
             byte palette; // The palette index to use for the pixel
@@ -112,7 +112,7 @@ namespace gandalf {
             void SetMode(GameboyMode mode) { mode_ = mode; }
 
             void Serialize(std::ostream& os) const override;
-            void Deserialize(std::istream& is) override;
+            void Deserialize(std::istream& is, std::uint16_t version) override;
         private:
             void RenderPixel();
             void TileStateMachine();

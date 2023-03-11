@@ -25,7 +25,7 @@ namespace gandalf {
         bool GetEnabled() const { return enabled_; }
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
     private:
         void OnDIVChanged(word old_div);

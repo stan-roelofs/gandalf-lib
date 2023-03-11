@@ -38,11 +38,11 @@ namespace gandalf
         serialization::Serialize(os, divisor_code_);
     }
 
-    void NoiseChannel::Deserialize(std::istream& is)
+    void NoiseChannel::Deserialize(std::istream& is, std::uint16_t version)
     {
-        SoundChannel::Deserialize(is);
-        length_counter_->Deserialize(is);
-        volume_envelope_->Deserialize(is);
+        SoundChannel::Deserialize(is, version);
+        length_counter_->Deserialize(is, version);
+        volume_envelope_->Deserialize(is, version);
         serialization::Deserialize(is, last_output_);
         serialization::Deserialize(is, timer_);
         serialization::Deserialize(is, lfsr_);

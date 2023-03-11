@@ -30,7 +30,7 @@ namespace gandalf
         virtual byte Tick() = 0;
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
     protected:
         bool channel_enabled_;

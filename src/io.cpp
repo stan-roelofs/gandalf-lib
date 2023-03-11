@@ -83,16 +83,16 @@ namespace gandalf {
         serialization::Serialize(os, static_cast<byte>(mode_));
     }
 
-    void IO::Deserialize(std::istream& is)
+    void IO::Deserialize(std::istream& is, std::uint16_t version)
     {
-        timer_.Deserialize(is);
-        lcd_.Deserialize(is);
-        ppu_.Deserialize(is);
-        serial_.Deserialize(is);
-        joypad_.Deserialize(is);
-        apu_.Deserialize(is);
-        dma_.Deserialize(is);
-        hdma_.Deserialize(is);
+        timer_.Deserialize(is, version);
+        lcd_.Deserialize(is, version);
+        ppu_.Deserialize(is, version);
+        serial_.Deserialize(is, version);
+        joypad_.Deserialize(is, version);
+        apu_.Deserialize(is, version);
+        dma_.Deserialize(is, version);
+        hdma_.Deserialize(is, version);
         byte mode;
         serialization::Deserialize(is, mode);
         mode_ = static_cast<GameboyMode>(mode);

@@ -72,8 +72,8 @@ namespace gandalf {
         serialization::Serialize(os, has_timer_);
     }
 
-    void MBC3::Deserialize(std::istream& is) {
-        MBC::Deserialize(is);
+    void MBC3::Deserialize(std::istream& is, std::uint16_t version) {
+        MBC::Deserialize(is, version);
 
         serialization::Deserialize(is, ram_enabled_);
         serialization::Deserialize(is, rom_bank_number_);

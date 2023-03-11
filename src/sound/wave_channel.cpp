@@ -33,7 +33,7 @@ namespace gandalf
         serialization::Serialize(os, sample_buffer_);
     }
 
-    void WaveChannel::Deserialize(std::istream& is)
+    void WaveChannel::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, dac_enabled_);
         serialization::Deserialize(is, volume_code_);

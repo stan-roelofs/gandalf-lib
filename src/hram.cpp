@@ -40,7 +40,7 @@ namespace gandalf {
         serialization::Serialize(os, data_);
     }
 
-    void HRAM::Deserialize(std::istream& is)
+    void HRAM::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, data_);
     }

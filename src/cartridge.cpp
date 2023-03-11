@@ -399,7 +399,7 @@ namespace gandalf {
         serialization::Serialize(os, global_checksum);
     }
 
-    void Cartridge::Header::Deserialize(std::istream& is)
+    void Cartridge::Header::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, logo);
         serialization::Deserialize(is, title);
@@ -564,10 +564,10 @@ namespace gandalf {
         mbc_->Serialize(stream);
     }
 
-    void Cartridge::Deserialize(std::istream& stream)
+    void Cartridge::Deserialize(std::istream& stream, std::uint16_t version)
     {
         auto header = std::make_shared<Header>();
-        header->Deserialize(stream);
+        header->Deserialize(stream, version);
         header_ = std::move(header);
 
         ROM rom;
@@ -578,6 +578,6 @@ namespace gandalf {
         if (!mbc_)
             throw SerializationException("Failed to create MBC");
 
-        mbc_->Deserialize(stream);
+        mbc_->Deserialize(stream, version);
     }
 }

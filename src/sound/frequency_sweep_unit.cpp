@@ -29,7 +29,7 @@ namespace gandalf
         serialization::Serialize(os, timer_);
     }
 
-    void FrequencySweepUnit::Deserialize(std::istream& is)
+    void FrequencySweepUnit::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, enabled_);
         serialization::Deserialize(is, frequency_shadow_register_);

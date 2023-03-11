@@ -13,6 +13,7 @@
 namespace gandalf
 {
     APU::APU(): Memory::AddressHandler("APU"),
+        ticks_until_sample_(0),
         vin_left_(false),
         vin_right_(false),
         left_volume_(0),
@@ -161,16 +162,15 @@ namespace gandalf
         serialization::Serialize(os, sound_enabled_);
     }
 
-    void APU::Deserialize(std::istream& is)
+    void APU::Deserialize(std::istream& is, std::uint16_t version)
     {
         for (auto& channel : sound_channels_)
-            channel->Deserialize(is);
+            channel->Deserialize(is, version);
 
-        frame_sequencer_.Deserialize(is);
+        frame_sequencer_.Deserialize(is, version);
         serialization::Deserialize(is, samples_);
         serialization::Deserialize(is, mute_channel_);
         serialization::Deserialize(is, ticks_until_sample_);
-
         serialization::Deserialize(is, vin_left_);
         serialization::Deserialize(is, vin_right_);
         serialization::Deserialize(is, left_volume_);

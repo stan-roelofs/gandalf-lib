@@ -24,6 +24,8 @@ namespace gandalf {
         }
     }
 
+    constexpr std::uint16_t SAVESTATE_VERSION = 1; // Must be increased when the save state format changes
+
     Gameboy::Gameboy(Model emulated_model):
         mode_(GetPreferredMode(emulated_model)),
         model_(emulated_model),
@@ -49,6 +51,7 @@ namespace gandalf {
     {
         try
         {
+            serialization::Serialize(os, SAVESTATE_VERSION);
             serialization::Serialize(os, static_cast<byte>(mode_));
             serialization::Serialize(os, static_cast<byte>(model_));
             io_.Serialize(os);
@@ -72,19 +75,24 @@ namespace gandalf {
     {
         try
         {
-			auto length = is.seekg(0, std::ios::end).tellg();
-			is.seekg(0, std::ios::beg);
+            auto length = is.seekg(0, std::ios::end).tellg();
+            is.seekg(0, std::ios::beg);
+
+            std::uint16_t version;
+            serialization::Deserialize(is, version);
+            if (version != SAVESTATE_VERSION)
+                return false;
 
             byte mode, model;
             serialization::Deserialize(is, mode);
             serialization::Deserialize(is, model);
             mode_ = static_cast<GameboyMode>(mode);
             model_ = static_cast<Model>(model);
-            io_.Deserialize(is);
-            cpu_.Deserialize(is);
-            wram_.Deserialize(is);
-            hram_.Deserialize(is);
-            cartridge_.Deserialize(is);
+            io_.Deserialize(is, version);
+            cpu_.Deserialize(is, version);
+            wram_.Deserialize(is, version);
+            hram_.Deserialize(is, version);
+            cartridge_.Deserialize(is, version);
             bool in_boot_rom;
             serialization::Deserialize(is, in_boot_rom);
             if (in_boot_rom)
@@ -92,11 +100,11 @@ namespace gandalf {
                 const auto boot_rom_bytes = GetBootROM(model_);
                 boot_rom_handler_ = std::make_unique<BootROMHandler>(*this, boot_rom_bytes);
                 memory_.Register(*boot_rom_handler_);
-                boot_rom_handler_->Deserialize(is);
+                boot_rom_handler_->Deserialize(is, version);
             }
 
-			if (is.tellg() != length)
-				return false;
+            if (is.tellg() != length)
+                return false;
         }
         catch (const std::exception&)
         {

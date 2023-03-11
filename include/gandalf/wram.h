@@ -18,7 +18,7 @@ namespace gandalf {
         void SetMode(GameboyMode mode) { mode_ = mode; }
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
         const std::array<std::array<byte, 0x1000>, 8>& GetData() const { return data_; }
         std::size_t GetCurrentBank() const { return wram_bank_; }

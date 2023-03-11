@@ -70,9 +70,9 @@ namespace gandalf {
         serialization::Serialize(os, has_rumble_);
     }
 
-    void MBC5::Deserialize(std::istream& is)
+    void MBC5::Deserialize(std::istream& is, std::uint16_t version)
     {
-        MBC::Deserialize(is);
+        MBC::Deserialize(is, version);
 
         serialization::Deserialize(is, ram_enabled_);
         serialization::Deserialize(is, rom_bank_number_);

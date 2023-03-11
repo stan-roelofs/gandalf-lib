@@ -107,7 +107,7 @@ namespace gandalf
         serialization::Serialize(os, cycle_counter_);
     }
 
-    void DMA::Deserialize(std::istream& is)
+    void DMA::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, dma_);
         serialization::Deserialize(is, in_progress_);

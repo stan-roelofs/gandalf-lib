@@ -198,7 +198,7 @@ namespace gandalf
         serialization::Serialize(os, static_cast<byte>(mode_));
     }
 
-    void LCD::Deserialize(std::istream& is)
+    void LCD::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, video_buffer_);
         serialization::Deserialize(is, lcdc_);

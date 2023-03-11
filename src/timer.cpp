@@ -128,7 +128,7 @@ namespace gandalf
         serialization::Serialize(os, reload_counter_);
     }
 
-    void Timer::Deserialize(std::istream& is)
+    void Timer::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, internal_counter_);
         serialization::Deserialize(is, tma_);

@@ -15,7 +15,7 @@ namespace gandalf
         ~NoiseChannel();
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
         byte GetRegister(int index) const override;
         void SetRegister(int index, byte value) override;

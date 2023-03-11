@@ -755,9 +755,9 @@ namespace gandalf {
     serialization::Serialize(os, static_cast<byte>(gameboy_mode_));
   }
 
-  void CPU::Deserialize(std::istream& is)
+  void CPU::Deserialize(std::istream& is, std::uint16_t version)
   {
-    registers_.Deserialize(is);
+    registers_.Deserialize(is, version);
     serialization::Deserialize(is, opcode_);
     serialization::Deserialize(is, halt_);
     serialization::Deserialize(is, stop_);

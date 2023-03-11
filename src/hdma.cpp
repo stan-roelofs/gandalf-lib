@@ -11,7 +11,7 @@ namespace
 
 namespace gandalf
 {
-    HDMA::HDMA(GameboyMode mode, Memory& memory, const LCD& lcd) : Memory::AddressHandler("HDMA"),
+    HDMA::HDMA(GameboyMode mode, Memory& memory, const LCD& lcd): Memory::AddressHandler("HDMA"),
         memory_(memory),
         lcd_(lcd),
         hdma1_(0),
@@ -192,7 +192,7 @@ namespace gandalf
         serialization::Serialize(os, static_cast<byte>(mode_));
     }
 
-    void HDMA::Deserialize(std::istream& is)
+    void HDMA::Deserialize(std::istream& is, std::uint16_t)
     {
         serialization::Deserialize(is, hdma1_);
         serialization::Deserialize(is, hdma2_);

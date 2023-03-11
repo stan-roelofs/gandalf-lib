@@ -18,7 +18,7 @@ namespace gandalf
         virtual void Serialize(std::ostream& os) const = 0;
 
         /// Deserializes the snapshot from the given stream
-        virtual void Deserialize(std::istream& is) = 0;
+        virtual void Deserialize(std::istream& is, std::uint16_t version) = 0;
     };
 
     class SerializationException: public std::exception
@@ -91,7 +91,7 @@ namespace gandalf
         }
 
         template <typename T>
-        inline void Deserialize(std::istream& is, T& value)
+        inline void Deserialize(std::istream& is, T& value, std::uint16_t version = 0)
         {
             if constexpr (std::is_same<T, bool>::value)
             {
@@ -101,7 +101,7 @@ namespace gandalf
             }
             else if constexpr (std::is_base_of<Serializable, T>::value)
             {
-                value.Deserialize(is);
+                value.Deserialize(is, version);
             }
             else {
                 static_assert(std::is_integral<T>::value, "T must be an integral type");
@@ -116,37 +116,37 @@ namespace gandalf
         }
 
         template <typename T, std::size_t N>
-        inline void Deserialize(std::istream& is, std::array<T, N>& values)
+        inline void Deserialize(std::istream& is, std::array<T, N>& values, std::uint16_t version = 0)
         {
             for (auto& value : values)
-                Deserialize(is, value);
+                Deserialize(is, value, version);
         }
 
         template <typename T>
-        inline void Deserialize(std::istream& is, std::vector<T>& values)
+        inline void Deserialize(std::istream& is, std::vector<T>& values, std::uint16_t version = 0)
         {
             std::size_t size;
             Deserialize(is, size);
             values.resize(size);
             for (auto& value : values)
-                Deserialize(is, value);
+                Deserialize(is, value, version);
         }
 
         template <typename T>
-        inline void Deserialize(std::istream& is, std::deque<T>& values)
+        inline void Deserialize(std::istream& is, std::deque<T>& values, std::uint16_t version = 0)
         {
             std::size_t size;
             Deserialize(is, size);
             values.resize(size);
             for (auto& value : values)
-                Deserialize(is, value);
+                Deserialize(is, value, version);
         }
 
         template <typename K, typename V>
-        inline void Deserialize(std::istream& is, std::map<K, V>& values)
+        inline void Deserialize(std::istream& is, std::map<K, V>& values, std::uint16_t version = 0)
         {
             std::size_t size;
-            Deserialize(is, size);
+            Deserialize(is, size, version);
             for (std::size_t i = 0; i < size; ++i)
             {
                 K key;

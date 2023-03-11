@@ -16,7 +16,7 @@ namespace gandalf
         virtual ~LengthCounter();
 
         void Serialize(std::ostream& os) const override;
-        void Deserialize(std::istream& is) override;
+        void Deserialize(std::istream& is, std::uint16_t version) override;
 
         void OnFrameSequencerStep() override;
         std::array<bool, 8> GetSteps() const override;
