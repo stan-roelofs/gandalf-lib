@@ -42,7 +42,8 @@ namespace gandalf
         assert(address == LCDC || address == STAT || address == SCY ||
             address == SCX || address == LY || address == LYC ||
             address == BGP || address == OBP0 || address == OBP1 || address == WY ||
-            address == WX);
+            address == WX || address == OCPS || address == BCPS || address == OCPD ||
+            address == BCPD);
 
         switch (address)
         {
