@@ -691,7 +691,7 @@ namespace gandalf {
     WRITE(registers_.hl(), value);                                             \
   }
 
-  CPU::CPU(GameboyMode mode, IO& io, Memory& memory): Memory::AddressHandler("CPU"),
+  CPU::CPU(GameboyMode mode, IO& io, Memory& memory) : Memory::AddressHandler("CPU"),
     memory_(memory),
     io_(io),
     opcode_(0),

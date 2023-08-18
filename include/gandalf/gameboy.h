@@ -59,6 +59,7 @@ namespace gandalf {
     const Joypad& GetJoypad() const { return io_.GetJoypad(); }
     const APU& GetAPU() const { return io_.GetAPU(); }
     const Timer& GetTimer() const { return io_.GetTimer(); }
+    const DMA& GetDMA() const { return io_.GetDMA(); }
 
     GameboyMode GetMode() const { return mode_; }
 

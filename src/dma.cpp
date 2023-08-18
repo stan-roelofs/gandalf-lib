@@ -42,7 +42,6 @@ namespace gandalf
 
             memory_.Write(0xFE00 + current_byte_write_, read_value_, false);
             ++current_byte_write_;
-
         }
 
         if (current_byte_read_ < 160) {

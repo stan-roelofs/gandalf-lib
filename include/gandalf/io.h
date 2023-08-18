@@ -27,6 +27,7 @@ namespace gandalf {
         const APU& GetAPU() const { return apu_; }
         APU& GetAPU() { return apu_; }
         const Timer& GetTimer() const { return timer_; }
+        const DMA& GetDMA() const { return dma_; }
 
         void Serialize(std::ostream& os) const override;
         void Deserialize(std::istream& is, std::uint16_t version) override;

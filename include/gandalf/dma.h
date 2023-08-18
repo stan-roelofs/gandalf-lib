@@ -21,6 +21,10 @@ namespace gandalf
         void Serialize(std::ostream& os) const override;
         void Deserialize(std::istream& is, std::uint16_t version) override;
 
+        bool InProgress() const { return in_progress_; }
+        word GetBytesRemaining() const { return 0xA0 - current_byte_write_; }
+        word GetSource() const { return source_address_; }
+
     private:
         void Start();
         Memory& memory_;
