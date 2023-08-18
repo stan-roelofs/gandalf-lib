@@ -10,7 +10,7 @@
 #include "serialization.h"
 
 namespace gandalf {
-    class PPU: public Memory::AddressHandler, public Serializable {
+    class PPU : public Memory::AddressHandler, public Serializable {
     public:
         class VBlankListener
         {
@@ -36,7 +36,7 @@ namespace gandalf {
         void Deserialize(std::istream& is, std::uint16_t version) override;
 
     private:
-        struct Sprite: public Serializable {
+        struct Sprite : public Serializable {
             byte y;
             byte x;
             byte tile_index;
@@ -56,9 +56,9 @@ namespace gandalf {
             void Deserialize(std::istream& is, std::uint16_t version) override;
         };
 
-        struct Pixel: public Serializable {
-            Pixel(): color(0), palette(0), background_priority(false), sprite_priority(0) {}
-            Pixel(byte color, byte palette, bool background_priority, byte sprite_priority):
+        struct Pixel : public Serializable {
+            Pixel() : color(0), palette(0), background_priority(false), sprite_priority(0) {}
+            Pixel(byte color, byte palette, bool background_priority, byte sprite_priority) :
                 color(color), palette(palette),
                 background_priority(background_priority),
                 sprite_priority(sprite_priority) {}
@@ -78,14 +78,14 @@ namespace gandalf {
             byte sprite_priority; // Only for CGB. The index of the sprite in OAM
         };
 
-        void ChecLYEqualsLYC();
+        void CheckLYEqualsLYC();
         void UpdateStatInterruptLine(int bit, bool value);
+        void SetLCDMode(LCD::Mode mode);
 
         Memory& memory_;
         LCD& lcd_;
         int line_ticks_;
         byte stat_interrupt_line_;
-        LCD::Mode lcd_mode_;
 
         GameboyMode mode_;
 
@@ -100,7 +100,7 @@ namespace gandalf {
         FetchedSprites fetched_sprites_;
 
         // this class is horrible and needs to be refactored
-        class Pipeline: public Serializable {
+        class Pipeline : public Serializable {
         public:
             friend class PPU;
             Pipeline(GameboyMode mode, LCD& lcd, VRAM& vram, FetchedSprites& fetched_sprites);

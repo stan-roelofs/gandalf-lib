@@ -24,12 +24,11 @@ namespace {
 }
 
 namespace gandalf {
-    PPU::PPU(GameboyMode mode, Memory& memory, LCD& lcd): Memory::AddressHandler("PPU"),
+    PPU::PPU(GameboyMode mode, Memory& memory, LCD& lcd) : Memory::AddressHandler("PPU"),
         memory_(memory),
         lcd_(lcd),
         line_ticks_(0),
         stat_interrupt_line_(0),
-        lcd_mode_(LCD::Mode::HBlank),
         mode_(mode),
         current_vram_bank_(0),
         opri_(0),
@@ -48,6 +47,26 @@ namespace gandalf {
         pipeline_.SetMode(mode);
     }
 
+    void PPU::SetLCDMode(LCD::Mode mode)
+    {
+        if (mode == LCD::Mode::VBlank)
+            UpdateStatInterruptLine(kStatBitModeOAM, false);
+
+        UpdateStatInterruptLine(mode_to_stat_bit[static_cast<int>(mode)], false);
+        UpdateStatInterruptLine(mode_to_stat_bit[static_cast<int>(mode)], true);
+
+        if (mode == LCD::Mode::VBlank)
+        {
+            UpdateStatInterruptLine(kStatBitModeOAM, true); // This bit also triggers an interrupt when VBlank starts
+
+            memory_.Write(address::IF, memory_.Read(address::IF) | VBlankInterruptMask);
+            for (auto listener : vblank_listeners_)
+                listener->OnVBlank();
+        }
+
+        lcd_.SetMode(mode);
+    }
+
     void PPU::Tick()
     {
         if ((lcd_.GetLCDControl() & 0x80) == 0)
@@ -56,26 +75,8 @@ namespace gandalf {
         ++line_ticks_;
 
         const LCD::Mode mode = lcd_.GetMode();
-        if (mode != lcd_mode_)
-        {
-            if (mode == LCD::Mode::VBlank)
-                UpdateStatInterruptLine(kStatBitModeOAM, false);
 
-            lcd_.SetMode(lcd_mode_);
-            UpdateStatInterruptLine(mode_to_stat_bit[static_cast<int>(mode)], false);
-            UpdateStatInterruptLine(mode_to_stat_bit[static_cast<int>(lcd_mode_)], true);
-
-            if (lcd_mode_ == LCD::Mode::VBlank)
-            {
-                UpdateStatInterruptLine(kStatBitModeOAM, true); // This bit also triggers an interrupt when VBlank starts
-
-                memory_.Write(address::IF, memory_.Read(address::IF) | VBlankInterruptMask);
-                for (auto listener : vblank_listeners_)
-                    listener->OnVBlank();
-            }
-        }
-
-        switch (lcd_mode_)
+        switch (mode)
         {
         case LCD::Mode::OamSearch:
         {
@@ -99,7 +100,7 @@ namespace gandalf {
             }
             if (line_ticks_ >= 80) {
                 pipeline_.Reset();
-                lcd_mode_ = LCD::Mode::PixelTransfer;
+                SetLCDMode(LCD::Mode::PixelTransfer);
             }
         }
         break;
@@ -107,8 +108,9 @@ namespace gandalf {
             pipeline_.Process();
 
             if (pipeline_.Done()) {
-                assert(BETWEEN(line_ticks_, 172 + 80, 289 + 80));
-                lcd_mode_ = LCD::Mode::HBlank;
+                //assert(BETWEEN(line_ticks_, 172 + 80, 289 + 80)); TODO
+                SetLCDMode(LCD::Mode::HBlank);
+
             }
             break;
         case LCD::Mode::HBlank:
@@ -116,14 +118,16 @@ namespace gandalf {
                 lcd_.SetLY(lcd_.GetLY() + 1);
 
                 if (lcd_.GetLY() >= ScreenHeight) {
-                    lcd_mode_ = LCD::Mode::VBlank;
+                    SetLCDMode(LCD::Mode::VBlank);
+
                 }
                 else {
-                    lcd_mode_ = LCD::Mode::OamSearch;
+                    SetLCDMode(LCD::Mode::OamSearch);
+
                     fetched_sprites_.clear();
                 }
 
-                ChecLYEqualsLYC();
+                CheckLYEqualsLYC();
                 line_ticks_ = 0;
             }
             break;
@@ -134,18 +138,18 @@ namespace gandalf {
                 lcd_.SetLY(lcd_.GetLY() + 1);
 
                 if (lcd_.GetLY() > kLinesPerFrame) {
-                    lcd_mode_ = LCD::Mode::OamSearch;
+                    SetLCDMode(LCD::Mode::OamSearch);
+
                     fetched_sprites_.clear();
                     lcd_.SetLY(0);
                 }
-                else
-                    ChecLYEqualsLYC();
+                CheckLYEqualsLYC();
             }
             break;
         }
     }
 
-    void PPU::ChecLYEqualsLYC()
+    void PPU::CheckLYEqualsLYC()
     {
         byte stat = lcd_.GetLCDStatus();
         if (lcd_.GetLY() == lcd_.GetLYC()) {
@@ -168,12 +172,15 @@ namespace gandalf {
         if (bit < 0)
             return;
 
-        if (value && (lcd_.GetLCDStatus() & (1 << bit)))
+        if (value)
         {
-            if (stat_interrupt_line_ == 0)
+            if (lcd_.GetLCDStatus() & (1 << bit))
+            {
+                //if (stat_interrupt_line_ == 0) TODO temporary fix for some games, but STAT blocking should be implemented
                 memory_.Write(address::IF, memory_.Read(address::IF) | LCDInterruptMask);
 
-            stat_interrupt_line_ |= (1 << bit);
+                stat_interrupt_line_ |= (1 << bit);
+            }
         }
         else
             stat_interrupt_line_ &= ~(1 << bit);
@@ -233,7 +240,6 @@ namespace gandalf {
     {
         serialization::Serialize(os, line_ticks_);
         serialization::Serialize(os, stat_interrupt_line_);
-        serialization::Serialize(os, static_cast<byte>(lcd_mode_));
         serialization::Serialize(os, static_cast<byte>(mode_));
         serialization::Serialize(os, vram_);
         serialization::Serialize(os, current_vram_bank_);
@@ -246,7 +252,6 @@ namespace gandalf {
     {
         serialization::Deserialize(is, line_ticks_);
         serialization::Deserialize(is, stat_interrupt_line_);
-        serialization::Deserialize(is, reinterpret_cast<byte&>(lcd_mode_));
         serialization::Deserialize(is, reinterpret_cast<byte&>(mode_));
         serialization::Deserialize(is, vram_);
         serialization::Deserialize(is, current_vram_bank_);
@@ -293,7 +298,7 @@ namespace gandalf {
         serialization::Deserialize(is, sprite_priority);
     }
 
-    PPU::Pipeline::Pipeline(GameboyMode mode, LCD& lcd, VRAM& vram, FetchedSprites& fetched_sprites):
+    PPU::Pipeline::Pipeline(GameboyMode mode, LCD& lcd, VRAM& vram, FetchedSprites& fetched_sprites) :
         lcd_(lcd),
         vram_(vram),
         sprite_in_progress_(false),
